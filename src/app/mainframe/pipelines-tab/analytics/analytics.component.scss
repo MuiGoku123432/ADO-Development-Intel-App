@@ -1,0 +1,342 @@
+.analytics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.summary-card {
+  ::ng-deep .p-card-body {
+    padding: 1.25rem;
+  }
+  
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}
+
+.summary-content {
+  text-align: center;
+  
+  .summary-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  .summary-label {
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+}
+
+.metrics-preview, .insights-preview, .team-preview {
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+.metrics-card, .insights-card, .team-card {
+  ::ng-deep .p-card-body {
+    padding: 1.5rem;
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  
+  .metric-item {
+    h5 {
+      margin: 0 0 1rem 0;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      i {
+        color: var(--primary-color);
+      }
+    }
+    
+    .metric-chart-placeholder {
+      text-align: center;
+      
+      .chart-visual {
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        gap: 0.5rem;
+        height: 120px;
+        margin-bottom: 1rem;
+        
+        .bar {
+          width: 20px;
+          background: linear-gradient(180deg, var(--primary-color), var(--primary-color-text));
+          border-radius: 4px 4px 0 0;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: var(--primary-color-text);
+          }
+        }
+      }
+      
+      p {
+        color: var(--text-color-secondary);
+        margin: 0;
+        font-size: 0.9rem;
+      }
+    }
+    
+    .metric-progress {
+      .progress-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        
+        span {
+          min-width: 120px;
+          color: var(--text-color);
+          font-weight: 500;
+        }
+        
+        ::ng-deep .p-progressbar {
+          flex: 1;
+          height: 12px;
+          
+          &.success-bar .p-progressbar-value {
+            background: var(--green-500);
+          }
+          
+          &.info-bar .p-progressbar-value {
+            background: var(--blue-500);
+          }
+          
+          &.primary-bar .p-progressbar-value {
+            background: var(--primary-color);
+          }
+        }
+      }
+    }
+  }
+}
+
+.insights-grid {
+  display: grid;
+  gap: 1.5rem;
+  
+  .insight-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    background: var(--surface-card);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-light);
+    }
+    
+    .insight-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      
+      i {
+        font-size: 1.5rem;
+        color: white;
+      }
+      
+      &.success {
+        background: var(--green-500);
+      }
+      
+      &.warning {
+        background: var(--orange-500);
+      }
+      
+      &.info {
+        background: var(--blue-500);
+      }
+    }
+    
+    .insight-content {
+      flex: 1;
+      
+      h6 {
+        margin: 0 0 0.5rem 0;
+        color: var(--text-color);
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0 0 0.75rem 0;
+        color: var(--text-color-secondary);
+        line-height: 1.4;
+      }
+      
+      .insight-metric {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.team-stats {
+  .team-member {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: var(--surface-card);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-light);
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .member-info {
+      h6 {
+        margin: 0 0 0.5rem 0;
+        color: var(--text-color);
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        color: var(--text-color-secondary);
+        font-size: 0.9rem;
+      }
+    }
+    
+    .member-metrics {
+      display: flex;
+      gap: 2rem;
+      
+      .metric {
+        text-align: right;
+        
+        .metric-label {
+          display: block;
+          font-size: 0.85rem;
+          color: var(--text-color-secondary);
+          margin-bottom: 0.25rem;
+        }
+        
+        .metric-value {
+          display: block;
+          font-weight: 600;
+          color: var(--text-color);
+          
+          &.success {
+            color: var(--green-600);
+          }
+          
+          &.warning {
+            color: var(--orange-600);
+          }
+        }
+      }
+    }
+  }
+}
+
+.features-list {
+  max-width: 600px;
+  margin: 2rem auto;
+  text-align: left;
+  
+  h4 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    
+    li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--surface-border);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      strong {
+        color: var(--primary-color);
+      }
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .analytics-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .team-member {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    
+    .member-metrics {
+      align-self: stretch;
+      justify-content: space-around;
+    }
+  }
+  
+  .insight-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+    
+    p-button {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+}

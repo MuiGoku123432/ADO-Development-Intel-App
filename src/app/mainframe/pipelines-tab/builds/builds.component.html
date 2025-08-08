@@ -1,0 +1,121 @@
+<div class="tab-content">
+  <div class="tab-placeholder">
+    <h2><i class="pi pi-cog"></i> Build Pipelines</h2>
+    <p>Monitor and manage continuous integration builds</p>
+    
+    <!-- Build Summary Cards -->
+    <div class="build-summary">
+      <p-card styleClass="summary-card">
+        <div class="summary-content">
+          <div class="summary-number">3</div>
+          <div class="summary-label">Running Builds</div>
+          <p-tag severity="info" value="In Progress"></p-tag>
+        </div>
+      </p-card>
+      
+      <p-card styleClass="summary-card">
+        <div class="summary-content">
+          <div class="summary-number">847</div>
+          <div class="summary-label">Successful Builds</div>
+          <p-tag severity="success" value="Passed"></p-tag>
+        </div>
+      </p-card>
+      
+      <p-card styleClass="summary-card">
+        <div class="summary-content">
+          <div class="summary-number">23</div>
+          <div class="summary-label">Failed Builds</div>
+          <p-tag severity="danger" value="Failed"></p-tag>
+        </div>
+      </p-card>
+      
+      <p-card styleClass="summary-card">
+        <div class="summary-content">
+          <div class="summary-number">97.4%</div>
+          <div class="summary-label">Success Rate</div>
+          <p-tag severity="success" value="Excellent"></p-tag>
+        </div>
+      </p-card>
+    </div>
+    
+    <!-- Current Builds -->
+    <div class="builds-preview">
+      <p-card header="Recent Build Activity" styleClass="builds-card">
+        <div class="build-list">
+          <div class="build-item running">
+            <div class="build-info">
+              <h5><i class="pi pi-spin pi-spinner"></i> Main Branch CI/CD Pipeline</h5>
+              <p>Building and testing latest changes from main branch</p>
+              <div class="build-progress">
+                <p-progressBar [value]="65" [showValue]="false"></p-progressBar>
+                <span class="progress-text">Step 3 of 5: Running Tests</span>
+              </div>
+              <div class="build-meta">
+                <span class="build-trigger">Triggered by: Push to main</span>
+                <span class="build-duration">Running for 4m 32s</span>
+                <span class="build-id">#2847</span>
+              </div>
+            </div>
+            <div class="build-actions">
+              <p-tag severity="info" value="Running"></p-tag>
+              <p-button icon="pi pi-stop" size="small" severity="warning" pTooltip="Cancel Build"></p-button>
+              <p-button icon="pi pi-eye" size="small" severity="primary" pTooltip="View Logs"></p-button>
+            </div>
+          </div>
+          
+          <div class="build-item success">
+            <div class="build-info">
+              <h5><i class="pi pi-check-circle"></i> Feature Branch Validation</h5>
+              <p>Validation pipeline for feature/user-authentication</p>
+              <div class="build-meta">
+                <span class="build-trigger">Triggered by: Pull Request #145</span>
+                <span class="build-duration">Completed in 6m 15s</span>
+                <span class="build-id">#2846</span>
+              </div>
+            </div>
+            <div class="build-actions">
+              <p-tag severity="success" value="Success"></p-tag>
+              <p-button icon="pi pi-download" size="small" severity="secondary" pTooltip="Download Artifacts"></p-button>
+              <p-button icon="pi pi-eye" size="small" severity="primary" pTooltip="View Results"></p-button>
+            </div>
+          </div>
+          
+          <div class="build-item failed">
+            <div class="build-info">
+              <h5><i class="pi pi-times-circle"></i> Nightly Integration Tests</h5>
+              <p>Automated testing suite with external dependencies</p>
+              <div class="build-meta">
+                <span class="build-trigger">Triggered by: Schedule</span>
+                <span class="build-duration">Failed after 12m 43s</span>
+                <span class="build-id">#2845</span>
+              </div>
+            </div>
+            <div class="build-actions">
+              <p-tag severity="danger" value="Failed"></p-tag>
+              <p-button icon="pi pi-refresh" size="small" severity="warning" pTooltip="Retry Build"></p-button>
+              <p-button icon="pi pi-exclamation-triangle" size="small" severity="danger" pTooltip="View Errors"></p-button>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    
+    <div class="features-list">
+      <h4>Planned Features:</h4>
+      <ul>
+        <li><strong>Pipeline Designer</strong> - Visual YAML pipeline editor with drag-and-drop</li>
+        <li><strong>Build Analytics</strong> - Performance metrics, trends, and optimization insights</li>
+        <li><strong>Artifact Management</strong> - Store, version, and distribute build outputs</li>
+        <li><strong>Quality Gates</strong> - Automated quality checks and deployment gates</li>
+        <li><strong>Multi-Stage Pipelines</strong> - Complex workflows with parallel execution</li>
+        <li><strong>Integration Hub</strong> - Connect with testing tools, security scanners, and deployment targets</li>
+      </ul>
+    </div>
+    
+    <div class="action-buttons">
+      <p-button label="New Pipeline" icon="pi pi-plus" severity="primary"></p-button>
+      <p-button label="Queue Build" icon="pi pi-play" severity="secondary"></p-button>
+      <p-button label="View History" icon="pi pi-history" severity="info"></p-button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+// Custom styles for mainframe-specific content
+.tab-content-area {
+  flex: 1;
+  overflow: hidden;
+  background: var(--surface-ground);
+}
+
+.features-preview {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    
+    li {
+      padding: 0.5rem 0;
+      color: var(--text-color-secondary);
+      
+      &::before {
+        content: "•";
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.chatbot-placeholder {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-color-secondary);
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    
+    li {
+      padding: 0.25rem 0;
+      
+      &:before {
+        content: "•";
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}
+
+.chatbot-float {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  
+  &:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+  }
+}

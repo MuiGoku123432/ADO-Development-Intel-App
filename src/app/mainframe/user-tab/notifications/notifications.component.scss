@@ -1,0 +1,141 @@
+.notifications-preview {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.notifications-card {
+  ::ng-deep .p-card-body {
+    padding: 1.5rem;
+  }
+}
+
+.notification-list {
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    background: var(--surface-card);
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background: var(--surface-hover);
+    }
+    
+    &.unread {
+      background: var(--blue-50);
+      border-color: var(--blue-200);
+      
+      &:hover {
+        background: var(--blue-100);
+      }
+    }
+    
+    &:last-child {
+      margin-bottom: 1rem;
+    }
+  }
+  
+  .notification-icon {
+    margin-right: 1rem;
+    margin-top: 0.25rem;
+    
+    i {
+      font-size: 1.25rem;
+    }
+  }
+  
+  .notification-content {
+    flex: 1;
+    
+    strong {
+      display: block;
+      color: var(--text-color);
+      margin-bottom: 0.25rem;
+    }
+    
+    p {
+      margin: 0.25rem 0;
+      color: var(--text-color-secondary);
+      line-height: 1.4;
+    }
+    
+    small {
+      color: var(--text-color-secondary);
+      font-size: 0.85rem;
+    }
+  }
+  
+  .notification-badge {
+    .unread-dot {
+      color: var(--blue-500);
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.notification-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.features-list {
+  max-width: 600px;
+  margin: 2rem auto;
+  text-align: left;
+  
+  h4 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    
+    li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--surface-border);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      strong {
+        color: var(--primary-color);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .notification-actions {
+    flex-direction: column;
+    align-items: center;
+    
+    p-button {
+      width: 100%;
+      max-width: 250px;
+    }
+  }
+  
+  .notification-item {
+    flex-direction: column;
+    text-align: center;
+    
+    .notification-icon {
+      margin-right: 0;
+      margin-bottom: 0.5rem;
+    }
+    
+    .notification-badge {
+      margin-top: 0.5rem;
+      align-self: center;
+    }
+  }
+}

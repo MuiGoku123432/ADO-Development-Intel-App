@@ -1,0 +1,11 @@
+.repos-tab-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.subtab-content-area {
+  flex: 1;
+  overflow: hidden;
+  background: var(--surface-ground);
+}

@@ -1,0 +1,73 @@
+<div class="app-container">
+  <!-- App Header -->
+  <header class="app-header">
+    <h1 class="app-title">ADO Development Intel</h1>
+    <div class="app-actions">
+      <p-button 
+        icon="pi pi-robot" 
+        [rounded]="true"
+        severity="secondary"
+        (onClick)="showChatbot()"
+        pTooltip="AI Assistant">
+      </p-button>
+    </div>
+  </header>
+
+  <!-- Main Content with Custom Tabs -->
+  <main class="main-content">
+    <app-main-tab [tabs]="mainTabs"></app-main-tab>
+    
+    <!-- Router outlet for tab content -->
+    <div class="tab-content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Floating Chatbot Button (Alternative to header button) -->
+  <p-button 
+    class="chatbot-float"
+    icon="pi pi-robot" 
+    [rounded]="true"
+    size="large"
+    severity="info"
+    (onClick)="showChatbot()"
+    pTooltip="AI Assistant">
+  </p-button>
+
+  <!-- Chatbot Dialog -->
+  <p-dialog 
+    header="ADO AI Assistant" 
+    [(visible)]="chatbotVisible"
+    [modal]="true"
+    [style]="{width: '50vw', minHeight: '60vh'}"
+    [draggable]="false"
+    [resizable]="true">
+    <div class="chatbot-placeholder">
+      <div class="text-center p-4">
+        <i class="pi pi-robot" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+        <h3>ADO AI Assistant</h3>
+        <p>Natural language interface for Azure DevOps operations</p>
+        <p><em>Integration with MCP Server coming soon...</em></p>
+        
+        <div class="mt-4 p-3" style="background: var(--surface-section); border-radius: 8px;">
+          <strong>Planned Features:</strong>
+          <ul class="text-left mt-2">
+            <li>"List my open tasks"</li>
+            <li>"Show repos with pending PRs"</li>
+            <li>"What builds failed today?"</li>
+            <li>"Create new work item"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <p-button 
+        label="Close" 
+        icon="pi pi-times" 
+        (onClick)="hideChatbot()"
+        severity="secondary">
+      </p-button>
+    </ng-template>
+  </p-dialog>
+</div>

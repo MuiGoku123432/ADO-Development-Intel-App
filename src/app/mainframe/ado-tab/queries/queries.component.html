@@ -1,0 +1,110 @@
+<div class="tab-content">
+  <div class="tab-placeholder">
+    <h2><i class="pi pi-search"></i> Queries</h2>
+    <p>Saved ADO queries and WIQL-based searches for custom work item filtering</p>
+    
+    <!-- Quick Search Section -->
+    <div class="quick-search">
+      <p-card header="Quick Search" styleClass="search-card">
+        <div class="search-controls">
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon">
+              <i class="pi pi-search"></i>
+            </span>
+            <input 
+              type="text" 
+              pInputText 
+              placeholder="Search work items, titles, descriptions..."
+              class="search-input">
+            <p-button 
+              icon="pi pi-search" 
+              label="Search"
+              severity="primary">
+            </p-button>
+          </div>
+          
+          <div class="search-suggestions">
+            <span class="suggestion-label">Popular searches:</span>
+            <p-tag value="My Open Items" severity="info" class="clickable-tag"></p-tag>
+            <p-tag value="Critical Bugs" severity="danger" class="clickable-tag"></p-tag>
+            <p-tag value="Ready for Review" severity="warning" class="clickable-tag"></p-tag>
+            <p-tag value="This Sprint" severity="success" class="clickable-tag"></p-tag>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    
+    <!-- Saved Queries Section -->
+    <div class="saved-queries">
+      <p-card header="Saved Queries" styleClass="queries-card">
+        <div class="query-list">
+          <div class="query-item">
+            <div class="query-info">
+              <h5><i class="pi pi-bookmark"></i> My Active Work</h5>
+              <p>All active work items assigned to me</p>
+              <div class="query-meta">
+                <span class="result-count">8 results</span>
+                <span class="last-run">Last run: 2 hours ago</span>
+              </div>
+            </div>
+            <div class="query-actions">
+              <p-button icon="pi pi-play" size="small" severity="primary" pTooltip="Run Query"></p-button>
+              <p-button icon="pi pi-pencil" size="small" severity="secondary" pTooltip="Edit"></p-button>
+              <p-button icon="pi pi-share-alt" size="small" severity="info" pTooltip="Share"></p-button>
+            </div>
+          </div>
+          
+          <div class="query-item">
+            <div class="query-info">
+              <h5><i class="pi pi-exclamation-triangle"></i> Critical Issues</h5>
+              <p>High priority bugs and blocking issues</p>
+              <div class="query-meta">
+                <span class="result-count">3 results</span>
+                <span class="last-run">Last run: 30 minutes ago</span>
+              </div>
+            </div>
+            <div class="query-actions">
+              <p-button icon="pi pi-play" size="small" severity="primary" pTooltip="Run Query"></p-button>
+              <p-button icon="pi pi-pencil" size="small" severity="secondary" pTooltip="Edit"></p-button>
+              <p-button icon="pi pi-share-alt" size="small" severity="info" pTooltip="Share"></p-button>
+            </div>
+          </div>
+          
+          <div class="query-item">
+            <div class="query-info">
+              <h5><i class="pi pi-users"></i> Team Sprint Items</h5>
+              <p>All items in current sprint for development team</p>
+              <div class="query-meta">
+                <span class="result-count">42 results</span>
+                <span class="last-run">Last run: 1 day ago</span>
+              </div>
+            </div>
+            <div class="query-actions">
+              <p-button icon="pi pi-play" size="small" severity="primary" pTooltip="Run Query"></p-button>
+              <p-button icon="pi pi-pencil" size="small" severity="secondary" pTooltip="Edit"></p-button>
+              <p-button icon="pi pi-share-alt" size="small" severity="info" pTooltip="Share"></p-button>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    
+    <div class="features-list">
+      <h4>Planned Features:</h4>
+      <ul>
+        <li><strong>WIQL Editor</strong> - Advanced query builder with syntax highlighting</li>
+        <li><strong>Query Templates</strong> - Pre-built templates for common scenarios</li>
+        <li><strong>Scheduled Queries</strong> - Auto-run queries and get notifications</li>
+        <li><strong>Export Results</strong> - Save query results to Excel, CSV, or PDF</li>
+        <li><strong>Query Sharing</strong> - Share queries with team members</li>
+        <li><strong>Chatbot Integration</strong> - Create queries using natural language</li>
+      </ul>
+    </div>
+    
+    <div class="action-buttons">
+      <p-button label="New Query" icon="pi pi-plus" severity="primary"></p-button>
+      <p-button label="Query Builder" icon="pi pi-code" severity="secondary"></p-button>
+      <p-button label="Import Query" icon="pi pi-upload" severity="info"></p-button>
+    </div>
+  </div>
+</div>

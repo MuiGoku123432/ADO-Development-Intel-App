@@ -1,0 +1,71 @@
+<div class="config-error-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="error-header">
+        <i [class]="getIconClass()" class="error-icon"></i>
+        <h3>{{ error.title }}</h3>
+      </div>
+    </ng-template>
+    
+    <div class="error-content">
+      <p-message 
+        [severity]="getSeverity()" 
+        [text]="error.message" 
+        styleClass="error-message">
+      </p-message>
+      
+      <div class="error-details" *ngIf="error.details && error.details.length > 0">
+        <h4>Missing Configuration:</h4>
+        <ul>
+          <li *ngFor="let detail of error.details">{{ detail }}</li>
+        </ul>
+      </div>
+      
+      <div class="instructions" *ngIf="showInstructions && error.type === 'missing-env'">
+        <h4>Setup Instructions:</h4>
+        <ol>
+          <li>Copy <code>.env.example</code> to <code>.env</code> in the project root</li>
+          <li>Edit <code>.env</code> and add your Azure DevOps credentials:</li>
+          <ul>
+            <li><strong>ADO_ORGANIZATION:</strong> Your organization name (not the full URL)</li>
+            <li><strong>ADO_PAT:</strong> Your Personal Access Token</li>
+          </ul>
+          <li>Generate a PAT from: Azure DevOps → User Settings → Personal Access Tokens</li>
+          <li>Required scopes: Work Items (Read & Write), Code (Read), Build (Read), Project and Team (Read)</li>
+          <li>Restart the application</li>
+        </ol>
+      </div>
+      
+      <div class="instructions" *ngIf="showInstructions && error.type === 'invalid-credentials'">
+        <h4>Credential Issues:</h4>
+        <ul>
+          <li>Verify your ADO_ORGANIZATION matches your Azure DevOps organization</li>
+          <li>Check that your ADO_PAT is valid and hasn't expired</li>
+          <li>Ensure your PAT has the required permissions</li>
+          <li>Try generating a new Personal Access Token</li>
+        </ul>
+      </div>
+      
+      <div class="instructions" *ngIf="showInstructions && error.type === 'connection-failed'">
+        <h4>Connection Troubleshooting:</h4>
+        <ul>
+          <li>Check your internet connection</li>
+          <li>Verify Azure DevOps is accessible from your network</li>
+          <li>Check if your organization URL is correct</li>
+          <li>Try accessing your ADO organization in a web browser</li>
+        </ul>
+      </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <div class="error-actions">
+        <p-button 
+          label="Refresh" 
+          icon="pi pi-refresh" 
+          (onClick)="onRefreshClick()"
+          styleClass="p-button-outlined">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

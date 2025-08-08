@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Injectable, inject, Inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { AdoApiBaseService } from './ado-api-base.service';
+import { ENVIRONMENT } from '../../app.config';
 import { 
   WorkItem, 
   WorkItemQuery, 
@@ -30,10 +31,13 @@ export interface IWorkItemsService {
 /**
  * Real ADO Work Items API service implementation
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class WorkItemsService extends AdoApiBaseService implements IWorkItemsService {
+  
+  constructor(@Inject(ENVIRONMENT) environment: any) {
+    // Pass environment to base class - will be provided by DI system
+    super(environment);
+  }
 
   /**
    * Get work items with optional filtering
@@ -171,6 +175,26 @@ export class WorkItemsService extends AdoApiBaseService implements IWorkItemsSer
   }
 
   /**
+   * Update a single field on a work item
+   */
+  updateWorkItemField(id: number, field: string, value: any, project?: string): Observable<WorkItem> {
+    this.requireAuthentication();
+    
+    const currentProject = project || this.getCurrentProject();
+    const endpoint = `/_apis/wit/workitems/${id}`;
+    
+    const patchOperations = [{
+      op: 'add',
+      path: field.startsWith('/fields/') ? field : `/fields/${field}`,
+      value: value
+    }];
+
+    return this.adoPatch<WorkItem>(endpoint, patchOperations, {}, undefined, currentProject).pipe(
+      catchError(error => this.handleAdoError(error))
+    );
+  }
+
+  /**
    * Delete a work item
    */
   deleteWorkItem(id: number, project?: string): Observable<void> {
@@ -186,37 +210,24 @@ export class WorkItemsService extends AdoApiBaseService implements IWorkItemsSer
 
   /**
    * Get work items assigned to current user
-   * Uses ADO API filter: System.AssignedTo eq @Me
+   * Uses WIQL query with @Me to get current user's work items
    */
   getMyWorkItems(project?: string): Observable<WorkItem[]> {
     this.requireAuthentication();
     
     const currentProject = project || this.getCurrentProject();
-    const endpoint = '/_apis/wit/workitems';
     
-    // Use ADO's @Me filter to get current user's work items
-    const params = {
-      '$filter': 'System.AssignedTo eq @Me',
-      '$expand': 'relations',
-      'fields': this.buildFieldsSelection([
-        'System.Id',
-        'System.Title', 
-        'System.WorkItemType',
-        'System.State',
-        'System.AssignedTo',
-        'System.CreatedDate',
-        'System.ChangedDate',
-        'Microsoft.VSTS.Common.Priority',
-        'Microsoft.VSTS.Scheduling.StoryPoints',
-        'Microsoft.VSTS.Scheduling.Effort',
-        'System.Description'
-      ])
-    };
-
-    return this.adoGet<ApiResponse<WorkItem>>(endpoint, params, undefined, currentProject).pipe(
-      map(response => this.extractApiResponseValue(response)),
-      catchError(error => this.handleAdoError(error))
-    );
+    // Use WIQL query to get work items assigned to current user
+    const wiql = `
+      SELECT [System.Id] 
+      FROM WorkItems 
+      WHERE [System.TeamProject] = '${currentProject}' 
+        AND [System.AssignedTo] = @Me
+        AND [System.State] <> 'Removed'
+      ORDER BY [System.ChangedDate] DESC
+    `;
+    
+    return this.executeWiqlQuery(wiql, currentProject);
   }
 
   /**
@@ -234,6 +245,40 @@ export class WorkItemsService extends AdoApiBaseService implements IWorkItemsSer
   }
 
   /**
+   * Create a new Task work item (convenience method)
+   */
+  createTask(request: CreateWorkItemRequest, project?: string): Observable<WorkItem> {
+    const taskRequest: CreateWorkItemRequest = {
+      ...request,
+      workItemType: 'Task'
+    };
+    return this.createWorkItem(taskRequest, project);
+  }
+
+  /**
+   * Search work items by text
+   */
+  searchWorkItems(searchText: string, project?: string): Observable<WorkItem[]> {
+    this.requireAuthentication();
+    
+    const currentProject = project || this.getCurrentProject();
+    
+    // Build WIQL query for text search - escape single quotes in search text
+    const escapedSearchText = searchText.replace(/'/g, "''");
+    const wiql = `
+      SELECT [System.Id] 
+      FROM WorkItems 
+      WHERE [System.TeamProject] = '${currentProject}' 
+        AND ([System.Title] CONTAINS '${escapedSearchText}' 
+          OR [System.Description] CONTAINS '${escapedSearchText}')
+        AND [System.State] <> 'Removed'
+      ORDER BY [System.ChangedDate] DESC
+    `;
+    
+    return this.executeWiqlQuery(wiql, currentProject);
+  }
+
+  /**
    * Execute a WIQL (Work Item Query Language) query
    */
   private executeWiqlQuery(wiql: string, project: string): Observable<WorkItem[]> {
@@ -241,19 +286,17 @@ export class WorkItemsService extends AdoApiBaseService implements IWorkItemsSer
     const body = { query: wiql };
 
     return this.adoPost<{ workItems: { id: number }[] }>(endpoint, body, {}, undefined, project).pipe(
-      map(result => {
+      switchMap(result => {
         const workItemIds = result.workItems.map(wi => wi.id);
         if (workItemIds.length === 0) {
-          return [];
+          return of([]);
         }
         
         // Get full work item details for the IDs returned by WIQL
         return this.getWorkItemsBatch(workItemIds, project);
       }),
-      // Flatten the observable
-      map(workItemsObservable => workItemsObservable),
       catchError(error => this.handleAdoError(error))
-    ) as any; // Type assertion needed due to complex observable mapping
+    );
   }
 
   /**
@@ -261,16 +304,30 @@ export class WorkItemsService extends AdoApiBaseService implements IWorkItemsSer
    */
   private getWorkItemsBatch(ids: number[], project: string): Observable<WorkItem[]> {
     if (ids.length === 0) {
-      return new Observable(observer => {
-        observer.next([]);
-        observer.complete();
-      });
+      return of([]);
     }
 
     const endpoint = `/_apis/wit/workitems`;
     const params = {
       'ids': ids.join(','),
-      '$expand': 'relations'
+      '$expand': 'relations',
+      'fields': this.buildFieldsSelection([
+        'System.Id',
+        'System.Title', 
+        'System.WorkItemType',
+        'System.State',
+        'System.AssignedTo',
+        'System.CreatedDate',
+        'System.CreatedBy',
+        'System.ChangedDate',
+        'System.ChangedBy',
+        'System.Description',
+        'System.AreaPath',
+        'System.IterationPath',
+        'Microsoft.VSTS.Common.Priority',
+        'Microsoft.VSTS.Scheduling.StoryPoints',
+        'Microsoft.VSTS.Scheduling.Effort'
+      ])
     };
 
     return this.adoGet<ApiResponse<WorkItem>>(endpoint, params, undefined, project).pipe(

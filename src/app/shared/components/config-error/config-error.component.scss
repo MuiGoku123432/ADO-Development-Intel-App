@@ -1,0 +1,166 @@
+.config-error-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  
+  .error-icon {
+    font-size: 2rem;
+    color: var(--orange-500);
+    
+    &.pi-exclamation-triangle {
+      color: var(--orange-500);
+    }
+    
+    &.pi-lock {
+      color: var(--red-500);
+    }
+    
+    &.pi-wifi {
+      color: var(--red-600);
+    }
+    
+    &.pi-times-circle {
+      color: var(--red-500);
+    }
+  }
+  
+  h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.error-content {
+  .error-message {
+    margin-bottom: 1.5rem;
+    
+    ::ng-deep {
+      .p-message {
+        margin: 0;
+      }
+    }
+  }
+  
+  .error-details {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--surface-100);
+    border-radius: 6px;
+    border-left: 4px solid var(--orange-500);
+    
+    h4 {
+      margin: 0 0 0.75rem 0;
+      color: var(--text-color);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      
+      li {
+        margin-bottom: 0.5rem;
+        color: var(--text-color-secondary);
+        line-height: 1.4;
+      }
+    }
+  }
+  
+  .instructions {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background-color: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    border-radius: 8px;
+    
+    h4 {
+      margin: 0 0 1rem 0;
+      color: var(--blue-700);
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      
+      &::before {
+        content: '\f05a'; // info-circle icon
+        font-family: 'primeicons';
+        font-size: 1rem;
+      }
+    }
+    
+    ol, ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      
+      li {
+        margin-bottom: 0.75rem;
+        color: var(--text-color);
+        line-height: 1.5;
+        
+        ul {
+          margin-top: 0.5rem;
+          margin-bottom: 0;
+          
+          li {
+            margin-bottom: 0.5rem;
+            color: var(--text-color-secondary);
+          }
+        }
+      }
+    }
+    
+    code {
+      background-color: var(--blue-100);
+      color: var(--blue-800);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+}
+
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .config-error-container {
+    margin: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .error-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    
+    h3 {
+      font-size: 1.25rem;
+    }
+  }
+  
+  .instructions {
+    padding: 1rem;
+    
+    ol, ul {
+      padding-left: 1.25rem;
+    }
+  }
+}

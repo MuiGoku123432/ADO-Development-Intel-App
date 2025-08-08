@@ -23,6 +23,11 @@ import { MainTabComponent, MainTab } from '../shared/components/main-tab/main-ta
 export class MainframeComponent {
   chatbotVisible = false;
 
+  constructor() {
+    console.log('🚀 MainframeComponent initialized');
+    console.log('📱 Main tabs configured:', this.mainTabs);
+  }
+
   mainTabs: MainTab[] = [
     {
       id: 'user',

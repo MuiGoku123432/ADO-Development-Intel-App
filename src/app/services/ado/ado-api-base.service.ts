@@ -1,18 +1,21 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClientService } from '../core/http-client.service';
-import { ENVIRONMENT } from '../../app.config';
 import { AdoAuthService } from '../core/ado-auth.service';
 import { ApiResponse, ApiSingleResponse } from '../models/api-response.interface';
 
 /**
  * Abstract base class for all ADO API services
- * Provides common functionality and enforces consistent patterns
+ * Provides common functionality and enforces consistent patterns  
+ * Environment is passed via constructor to avoid circular dependencies
  */
 export abstract class AdoApiBaseService {
   protected readonly http = inject(HttpClientService);
-  protected readonly environment = inject(ENVIRONMENT);
   protected readonly authService = inject(AdoAuthService);
+  
+  constructor(protected environment: any) {
+    // Environment is injected by concrete implementations
+  }
 
   /**
    * Build ADO API URL with organization and project context
@@ -189,8 +192,20 @@ export abstract class AdoApiBaseService {
    * Get current project from auth state or use default
    */
   protected getCurrentProject(): string {
-    // This could be enhanced to get project from auth state or user preferences
-    return 'proj-001'; // Default project for development
+    // Try to get project from auth service or environment
+    const authState = this.authService.getCurrentAuthState();
+    if (authState?.project) {
+      return authState.project;
+    }
+    
+    // Use environment default project if configured
+    if (this.environment.defaultProject) {
+      return this.environment.defaultProject;
+    }
+    
+    // Fallback to a reasonable default - this should be configured per environment
+    console.warn('⚠️ No project configured, using default. Set defaultProject in environment.');
+    return 'DefaultProject'; // This should match your actual ADO project name
   }
 
   /**
@@ -206,7 +221,43 @@ export abstract class AdoApiBaseService {
    * Handle common ADO API error scenarios
    */
   protected handleAdoError(error: any): Observable<never> {
-    // This could be enhanced with ADO-specific error handling
-    throw error;
+    console.error('ADO API Error:', error);
+    
+    // Handle common ADO API error scenarios
+    if (error.status === 401) {
+      console.error('❌ ADO Authentication failed - invalid PAT or expired token');
+      // Clear auth state to force re-authentication
+      this.authService.signOut();
+      throw new Error('ADO Authentication failed. Please check your Personal Access Token.');
+    }
+    
+    if (error.status === 403) {
+      console.error('❌ ADO Access denied - insufficient permissions');
+      throw new Error('Access denied. Please check your ADO permissions for this project.');
+    }
+    
+    if (error.status === 404) {
+      console.error('❌ ADO Resource not found - invalid project or work item');
+      throw new Error('ADO resource not found. Please check the project name and resource ID.');
+    }
+    
+    if (error.status === 400) {
+      console.error('❌ ADO Bad request - invalid query or parameters');
+      throw new Error('Invalid request to ADO API. Please check the query parameters.');
+    }
+    
+    if (error.status >= 500) {
+      console.error('❌ ADO Server error - Azure DevOps service issue');
+      throw new Error('Azure DevOps service is currently unavailable. Please try again later.');
+    }
+    
+    // Network or other errors
+    if (error.status === 0) {
+      console.error('❌ Network error - unable to reach ADO API');
+      throw new Error('Unable to connect to Azure DevOps. Please check your internet connection.');
+    }
+    
+    // Generic error fallback
+    throw new Error(error.message || 'An unexpected error occurred while accessing Azure DevOps.');
   }
 }

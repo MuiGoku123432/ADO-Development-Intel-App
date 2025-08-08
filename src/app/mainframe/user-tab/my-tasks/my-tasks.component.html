@@ -1,50 +1,151 @@
-<div class="tab-content">
-  <div class="tab-placeholder">
-    <h2><i class="pi pi-check-square"></i> My Tasks</h2>
-    <p>Personal productivity dashboard for your assigned work items</p>
-    
-    <!-- Summary Cards -->
-    <div class="task-summary">
-      <p-card styleClass="summary-card">
-        <div class="summary-content">
-          <div class="summary-number">8</div>
-          <div class="summary-label">Active Tasks</div>
-          <p-tag severity="info" value="In Progress"></p-tag>
-        </div>
-      </p-card>
+<div class="my-tasks-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1><i class="pi pi-check-square"></i> My Tasks</h1>
+        <p>Personal productivity dashboard for your assigned work items</p>
+      </div>
       
-      <p-card styleClass="summary-card">
-        <div class="summary-content">
-          <div class="summary-number">3</div>
-          <div class="summary-label">High Priority</div>
-          <p-tag severity="danger" value="Urgent"></p-tag>
+      <div class="header-stats" *ngIf="!loading()">
+        <div class="stat-item">
+          <span class="stat-number">{{ activeTasks() }}</span>
+          <span class="stat-label">Active</span>
         </div>
-      </p-card>
-      
-      <p-card styleClass="summary-card">
-        <div class="summary-content">
-          <div class="summary-number">12</div>
-          <div class="summary-label">This Week</div>
-          <p-tag severity="success" value="On Track"></p-tag>
+        <div class="stat-item">
+          <span class="stat-number">{{ highPriorityTasks() }}</span>
+          <span class="stat-label">High Priority</span>
         </div>
-      </p-card>
-    </div>
-    
-    <div class="features-list">
-      <h4>Planned Features:</h4>
-      <ul>
-        <li><strong>Task List</strong> - DataTable with filters by priority, due date, and status</li>
-        <li><strong>Quick Actions</strong> - Inline edit, attach files, link to repositories</li>
-        <li><strong>Drag & Drop</strong> - Reorder tasks by priority</li>
-        <li><strong>Time Tracking</strong> - Log hours and track progress</li>
-        <li><strong>Smart Filters</strong> - Show only tasks due today, this week, etc.</li>
-      </ul>
-    </div>
-    
-    <div class="action-buttons">
-      <p-button label="Create New Task" icon="pi pi-plus" severity="primary"></p-button>
-      <p-button label="Bulk Update" icon="pi pi-list" severity="secondary"></p-button>
-      <p-button label="Export Tasks" icon="pi pi-download" severity="info"></p-button>
+        <div class="stat-item">
+          <span class="stat-number">{{ thisWeekTasks() }}</span>
+          <span class="stat-label">This Week</span>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Summary Cards -->
+  <div class="task-summary" *ngIf="!loading()">
+    <p-card styleClass="summary-card">
+      <div class="summary-content">
+        <div class="summary-number">{{ activeTasks() }}</div>
+        <div class="summary-label">Active Tasks</div>
+        <p-tag 
+          [severity]="activeTasks() > 0 ? 'info' : 'success'" 
+          [value]="activeTasks() > 0 ? 'In Progress' : 'All Done'">
+        </p-tag>
+      </div>
+    </p-card>
+    
+    <p-card styleClass="summary-card">
+      <div class="summary-content">
+        <div class="summary-number">{{ highPriorityTasks() }}</div>
+        <div class="summary-label">High Priority</div>
+        <p-tag 
+          [severity]="highPriorityTasks() > 0 ? 'danger' : 'success'" 
+          [value]="highPriorityTasks() > 0 ? 'Urgent' : 'Clear'">
+        </p-tag>
+      </div>
+    </p-card>
+    
+    <p-card styleClass="summary-card">
+      <div class="summary-content">
+        <div class="summary-number">{{ thisWeekTasks() }}</div>
+        <div class="summary-label">This Week</div>
+        <p-tag severity="success" value="Updated"></p-tag>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Tasks Table -->
+  <div class="tasks-table-container">
+    <app-shared-data-table
+      [config]="tableConfig()"
+      [stateKey]="'my-tasks-table'"
+      (refresh)="onTableRefresh()"
+      (configChange)="onTableConfigChange($event)">
+      
+      <!-- Custom Empty State Template -->
+      <ng-template #emptyTemplate>
+        <div class="custom-empty-state">
+          <i class="pi pi-check-circle empty-icon"></i>
+          <h3>All caught up!</h3>
+          <p>You have no tasks assigned. Time to take a break or pick up new work!</p>
+          <p-button 
+            label="Create New Task" 
+            icon="pi pi-plus" 
+            severity="primary"
+            (onClick)="openCreateTaskDialog()">
+          </p-button>
+        </div>
+      </ng-template>
+
+      <!-- Custom Loading Template -->
+      <ng-template #loadingTemplate>
+        <div class="custom-loading">
+          <div class="loading-skeleton">
+            <div class="skeleton-row" *ngFor="let item of [1,2,3,4,5]">
+              <div class="skeleton-cell small"></div>
+              <div class="skeleton-cell large"></div>
+              <div class="skeleton-cell medium"></div>
+              <div class="skeleton-cell small"></div>
+              <div class="skeleton-cell medium"></div>
+              <div class="skeleton-cell small"></div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+    </app-shared-data-table>
+  </div>
+
 </div>
+
+<!-- Create Task Dialog -->
+<p-dialog 
+  header="Create New Task" 
+  [visible]="showCreateTaskDialog()"
+  (onHide)="closeCreateTaskDialog()"
+  [modal]="true"
+  [style]="{ width: '600px' }"
+  [draggable]="false"
+  [resizable]="false">
+
+  <div class="create-task-form">
+    <div class="form-placeholder">
+      <i class="pi pi-plus-circle" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+      <h3>Create New Task</h3>
+      <p>Task creation form will be implemented here</p>
+      
+      <div class="form-preview">
+        <ul>
+          <li>Title (required)</li>
+          <li>Description</li>
+          <li>Work Item Type (Task, Bug, User Story)</li>
+          <li>Priority</li>
+          <li>Story Points/Effort</li>
+          <li>Area Path</li>
+          <li>Iteration Path</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button 
+        label="Cancel" 
+        icon="pi pi-times"
+        (onClick)="closeCreateTaskDialog()"
+        severity="secondary">
+      </p-button>
+      <p-button 
+        label="Create Task" 
+        icon="pi pi-check"
+        severity="primary"
+        [disabled]="true">
+      </p-button>
+    </div>
+  </ng-template>
+
+</p-dialog>

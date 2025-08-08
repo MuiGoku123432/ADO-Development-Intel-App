@@ -24,9 +24,13 @@ export class MainTabComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   activeTabIndex: number = 0;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    console.log('🗂️ MainTabComponent initialized');
+  }
 
   ngOnInit() {
+    console.log('🗂️ MainTabComponent ngOnInit - tabs:', this.tabs);
+    
     // Set initial active tab based on current route
     this.updateActiveTabFromRoute();
     

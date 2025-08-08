@@ -1,0 +1,567 @@
+// Shared Data Table Styles
+// Inherits design system from existing tab components
+
+.shared-data-table {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-ground);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+
+  // Table Header/Toolbar
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--surface-card) 0%, var(--surface-section) 100%);
+    border-bottom: 1px solid var(--surface-border);
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+
+      .global-search {
+        .global-filter-input {
+          width: 300px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &:focus {
+            width: 350px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+          }
+        }
+      }
+
+      .selection-count {
+        ::ng-deep .p-tag {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+          animation: fadeInScale 0.3s ease-out;
+        }
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .table-actions,
+      .bulk-actions {
+        display: flex;
+        gap: 0.5rem;
+
+        ::ng-deep p-button {
+          .p-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+          }
+        }
+      }
+
+      .bulk-actions {
+        ::ng-deep .p-button {
+          background: linear-gradient(135deg, var(--orange-500) 0%, var(--orange-400) 100%);
+          border-color: var(--orange-500);
+          
+          &:hover {
+            background: linear-gradient(135deg, var(--orange-600) 0%, var(--orange-500) 100%);
+          }
+        }
+      }
+    }
+  }
+
+  // Main Table Styling
+  ::ng-deep .shared-table {
+    flex: 1;
+    
+    .p-datatable-wrapper {
+      border-radius: 0;
+    }
+
+    .p-datatable-thead > tr > th {
+      background: linear-gradient(135deg, var(--surface-section) 0%, var(--surface-card) 100%);
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 1rem;
+      border-bottom: 2px solid var(--surface-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      
+      &.p-sortable-column:hover {
+        background: linear-gradient(135deg, var(--surface-hover) 0%, var(--surface-section) 100%);
+      }
+
+      .p-column-header-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .p-sortable-column-icon {
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+      }
+
+      .p-column-filter-wrapper {
+        margin-top: 0.5rem;
+      }
+    }
+
+    .p-datatable-tbody > tr {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: var(--surface-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      &.p-highlight {
+        background: linear-gradient(135deg, var(--primary-color-light) 0%, rgba(37, 99, 235, 0.1) 100%);
+        color: var(--primary-color-dark);
+        
+        &:hover {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-light) 100%);
+          color: white;
+        }
+      }
+
+      > td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--surface-border);
+        vertical-align: middle;
+        
+        &.actions-column {
+          padding: 0.75rem;
+        }
+      }
+    }
+
+    .p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+      background: var(--surface-section);
+    }
+
+    // Pagination
+    .p-paginator {
+      background: var(--surface-card);
+      border-top: 1px solid var(--surface-border);
+      padding: 1rem;
+      
+      .p-paginator-pages .p-paginator-page {
+        transition: all 0.3s ease;
+        
+        &.p-highlight {
+          background: var(--primary-color);
+          color: white;
+          box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+        }
+
+        &:hover:not(.p-highlight) {
+          background: var(--surface-hover);
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+
+  // Cell Type Styling
+  .status-cell {
+    ::ng-deep .p-tag {
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      
+      &.p-tag-success {
+        background: linear-gradient(135deg, var(--green-500) 0%, var(--green-400) 100%);
+      }
+      
+      &.p-tag-info {
+        background: linear-gradient(135deg, var(--blue-500) 0%, var(--blue-400) 100%);
+      }
+      
+      &.p-tag-warning {
+        background: linear-gradient(135deg, var(--orange-500) 0%, var(--orange-400) 100%);
+      }
+      
+      &.p-tag-danger {
+        background: linear-gradient(135deg, var(--red-500) 0%, var(--red-400) 100%);
+      }
+    }
+  }
+
+  .priority-cell {
+    ::ng-deep .p-tag {
+      font-weight: 600;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      
+      .p-tag-icon {
+        margin-right: 0.3rem;
+      }
+    }
+  }
+
+  .user-cell {
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .user-avatar {
+        ::ng-deep .p-avatar {
+          background: var(--primary-color);
+          color: white;
+          font-weight: 600;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+
+      .user-name {
+        font-weight: 500;
+        color: var(--text-color);
+      }
+    }
+  }
+
+  .badge-cell {
+    ::ng-deep .p-badge {
+      background: var(--primary-color);
+      font-size: 0.8rem;
+      min-width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  .boolean-cell {
+    text-align: center;
+    
+    .pi {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+  }
+
+  .link-cell {
+    .table-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: var(--primary-color-dark);
+        text-decoration: underline;
+        
+        .pi {
+          transform: scale(1.1);
+        }
+      }
+
+      .pi {
+        font-size: 0.9rem;
+        transition: transform 0.3s ease;
+      }
+    }
+  }
+
+  .text-cell {
+    line-height: 1.4;
+    
+    &[style*="text-align: center"] {
+      text-align: center;
+    }
+    
+    &[style*="text-align: right"] {
+      text-align: right;
+    }
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+
+    ::ng-deep .p-button {
+      width: 2.2rem;
+      height: 2.2rem;
+      padding: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        transform: scale(1.1);
+        z-index: 5;
+      }
+
+      &.p-button-outlined {
+        background: transparent;
+        
+        &:hover {
+          background: var(--primary-color);
+          color: white;
+          box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+      }
+    }
+  }
+
+  // Loading States
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+
+    .loading-content {
+      text-align: center;
+      
+      ::ng-deep .p-progress-spinner {
+        margin-bottom: 1rem;
+        
+        .p-progress-spinner-circle {
+          stroke: var(--primary-color);
+        }
+      }
+
+      p {
+        color: var(--text-color-secondary);
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  // Empty State
+  .empty-state {
+    padding: 3rem;
+    text-align: center;
+
+    .empty-content {
+      max-width: 400px;
+      margin: 0 auto;
+
+      .empty-icon {
+        font-size: 3rem;
+        color: var(--text-color-secondary);
+        margin-bottom: 1rem;
+        opacity: 0.6;
+      }
+
+      h3 {
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      p {
+        color: var(--text-color-secondary);
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+// Column Manager Dialog
+::ng-deep .p-dialog .column-manager {
+  .column-list {
+    max-height: 300px;
+    overflow-y: auto;
+
+    .column-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--surface-border);
+      
+      &.locked {
+        opacity: 0.6;
+        background: var(--surface-section);
+        padding: 0.75rem;
+        margin: 0 -0.5rem;
+        border-radius: 6px;
+      }
+
+      .column-label {
+        flex: 1;
+        font-weight: 500;
+      }
+
+      .pi-lock {
+        color: var(--text-color-secondary);
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .column-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+    text-align: center;
+  }
+}
+
+// Responsive Design
+@media (max-width: 968px) {
+  .shared-data-table {
+    .table-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .header-left,
+      .header-right {
+        justify-content: space-between;
+      }
+
+      .global-search .global-filter-input {
+        width: 100%;
+        
+        &:focus {
+          width: 100%;
+        }
+      }
+    }
+
+    ::ng-deep .shared-table {
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .p-datatable-responsive-demo .p-datatable-tbody > tr > td:before {
+        font-weight: 600;
+        color: var(--text-color-secondary);
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .shared-data-table {
+    .table-header {
+      padding: 1rem;
+
+      .header-right {
+        overflow-x: auto;
+        gap: 0.5rem;
+        
+        ::ng-deep .p-button .p-button-label {
+          display: none;
+        }
+      }
+    }
+
+    ::ng-deep .shared-table {
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.85rem;
+      }
+
+      .row-actions {
+        flex-direction: column;
+        gap: 0.125rem;
+
+        ::ng-deep .p-button {
+          width: 1.8rem;
+          height: 1.8rem;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Focus and Accessibility
+.shared-data-table {
+  ::ng-deep {
+    .p-button:focus,
+    .p-inputtext:focus,
+    .p-dropdown:focus,
+    .p-multiselect:focus,
+    .p-calendar:focus {
+      box-shadow: 0 0 0 2px var(--primary-color-light);
+      outline: none;
+    }
+
+    .p-checkbox:focus .p-checkbox-box {
+      box-shadow: 0 0 0 2px var(--primary-color-light);
+    }
+  }
+}
+
+// Print Styles
+@media print {
+  .shared-data-table {
+    .table-header,
+    .loading-overlay,
+    .row-actions {
+      display: none !important;
+    }
+
+    ::ng-deep .shared-table {
+      .p-datatable-wrapper {
+        overflow: visible !important;
+      }
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.5rem !important;
+        border: 1px solid #ccc !important;
+        font-size: 10px !important;
+      }
+    }
+  }
+}

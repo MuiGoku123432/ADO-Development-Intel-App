@@ -15,6 +15,11 @@ import {
  */
 @Injectable()
 export class MockWorkItemsService implements IWorkItemsService {
+  
+  constructor() {
+    console.log('🎭 MockWorkItemsService initialized');
+  }
+
   private mockWorkItems: WorkItem[] = [
     {
       id: 1001,
@@ -279,6 +284,7 @@ export class MockWorkItemsService implements IWorkItemsService {
   }
 
   getMyWorkItems(project?: string): Observable<WorkItem[]> {
+    console.log('📋 MockWorkItemsService.getMyWorkItems called -', this.mockWorkItems.length, 'work items available');
     // Return items assigned to mock user
     return this.getWorkItemsByAssignee('Mock User', project);
   }
@@ -289,6 +295,32 @@ export class MockWorkItemsService implements IWorkItemsService {
 
   getWorkItemsByState(state: string, project?: string): Observable<WorkItem[]> {
     return this.getWorkItems({ state }, project);
+  }
+
+  updateWorkItemField(id: number, field: string, value: any, project?: string): Observable<WorkItem> {
+    const update: WorkItemUpdate = {
+      op: 'replace',
+      path: field,
+      value: value
+    };
+    return this.updateWorkItem(id, [update], project);
+  }
+
+  createTask(request: CreateWorkItemRequest, project?: string): Observable<WorkItem> {
+    const taskRequest: CreateWorkItemRequest = {
+      ...request,
+      workItemType: 'Task'
+    };
+    return this.createWorkItem(taskRequest, project);
+  }
+
+  searchWorkItems(searchText: string, project?: string): Observable<WorkItem[]> {
+    const filteredItems = this.mockWorkItems.filter(item =>
+      item.fields['System.Title'].toLowerCase().includes(searchText.toLowerCase()) ||
+      (item.fields['System.Description'] && item.fields['System.Description'].toLowerCase().includes(searchText.toLowerCase()))
+    );
+    
+    return of(filteredItems).pipe(delay(300));
   }
 
   private createMockUser(displayName: string, email: string, id: string): AssignedTo {

@@ -1,1 +1,20 @@
-<router-outlet></router-outlet>
+<!-- Configuration Error Display -->
+<app-config-error 
+  *ngIf="configError" 
+  [error]="configError"
+  [showInstructions]="true">
+</app-config-error>
+
+<!-- Main Application -->
+<ng-container *ngIf="showApp">
+  <router-outlet></router-outlet>
+
+  <!-- Global Loading Overlay -->
+  <app-loading-spinner 
+    [show]="loadingService.isLoading()" 
+    [overlay]="true"
+    type="spinner"
+    size="large"
+    message="Loading...">
+  </app-loading-spinner>
+</ng-container>

@@ -6,5 +6,8 @@ export const environment = {
   apiVersion: '7.0',
   requestTimeout: 30000,
   retryAttempts: 3,
-  cacheTimeout: 300000 // 5 minutes
+  cacheTimeout: 300000, // 5 minutes
+  
+  // Default ADO project (used in mock mode or as fallback)
+  defaultProject: 'MockProject'
 };

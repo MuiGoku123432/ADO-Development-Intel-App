@@ -1,59 +1,48 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { TabViewModule } from 'primeng/tabview';
+import { CardModule } from 'primeng/card';
+import { PanelModule } from 'primeng/panel';
+import { DividerModule } from 'primeng/divider';
+import { FieldsetModule } from 'primeng/fieldset';
+import { ListboxModule } from 'primeng/listbox';
 
-// Import custom tab component
-import { MainTabComponent, MainTab } from '../shared/components/main-tab/main-tab.component';
+// Import simplified components
+import { MyTasksComponent } from './user-tab/my-tasks/my-tasks.component';
 
 @Component({
   selector: 'app-mainframe',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     ButtonModule,
     DialogModule,
-    MainTabComponent
+    TabViewModule,
+    CardModule,
+    PanelModule,
+    DividerModule,
+    FieldsetModule,
+    ListboxModule,
+    MyTasksComponent
   ],
   templateUrl: './mainframe.component.html',
   styleUrl: './mainframe.component.scss'
 })
 export class MainframeComponent {
   chatbotVisible = false;
+  
+  plannedFeatures = [
+    { label: '"List my open tasks"' },
+    { label: '"Show repos with pending PRs"' },
+    { label: '"What builds failed today?"' },
+    { label: '"Create new work item"' }
+  ];
 
   constructor() {
-    console.log('🚀 MainframeComponent initialized');
-    console.log('📱 Main tabs configured:', this.mainTabs);
+    console.log('🚀 Simplified MainframeComponent initialized');
   }
-
-  mainTabs: MainTab[] = [
-    {
-      id: 'user',
-      label: 'User',
-      icon: 'pi-user',
-      routePath: '/user'
-    },
-    {
-      id: 'ado',
-      label: 'ADO',
-      icon: 'pi-sitemap',
-      routePath: '/ado'
-    },
-    {
-      id: 'repos',
-      label: 'Repos',
-      icon: 'pi-code',
-      routePath: '/repos'
-    },
-    {
-      id: 'pipelines',
-      label: 'Pipelines',
-      icon: 'pi-sync',
-      routePath: '/pipelines'
-    }
-  ];
 
   showChatbot() {
     this.chatbotVisible = true;

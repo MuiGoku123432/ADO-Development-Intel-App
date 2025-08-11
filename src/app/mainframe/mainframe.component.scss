@@ -1,59 +1,53 @@
-// Custom styles for mainframe-specific content
-.tab-content-area {
-  flex: 1;
+/* MainFrame Component - Clean PrimeNG approach */
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   background: var(--surface-ground);
 }
 
-.features-preview {
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
-    
-    li {
-      padding: 0.5rem 0;
-      color: var(--text-color-secondary);
-      
-      &::before {
-        content: "•";
-        color: var(--primary-color);
-        margin-right: 0.75rem;
-        font-weight: bold;
-      }
-    }
-  }
-}
-
-.chatbot-placeholder {
-  min-height: 400px;
+/* Main content area */
+.main-content {
+  flex: 1;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--text-color-secondary);
-  
-  ul {
-    list-style: none;
-    padding: 0;
-    
-    li {
-      padding: 0.25rem 0;
-      
-      &:before {
-        content: "•";
-        color: var(--primary-color);
-        margin-right: 0.5rem;
-      }
-    }
-  }
+  flex-direction: column;
 }
 
+/* Tab content wrapper */
+.tab-content-wrapper {
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface-ground);
+  padding: 1rem;
+}
+
+/* Floating chatbot button positioning */
 .chatbot-float {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  
-  &:hover {
-    transform: scale(1.05);
-    transition: transform 0.2s ease;
-  }
+  position: fixed !important;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+/* Custom styling for app header panel */
+:host ::ng-deep .app-header.p-panel {
+  border: none;
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: 0;
+}
+
+:host ::ng-deep .app-header .p-panel-header {
+  padding: 1.5rem 2rem;
+  background: var(--surface-card);
+  border: none;
+}
+
+/* Header card styling */
+:host ::ng-deep .header-card.p-card {
+  border-radius: 0;
+  border: none;
+  margin-bottom: 1rem;
 }

@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
-
-// Import custom sub-tab component
-import { SubTabComponent, SubTab } from '../../shared/components/sub-tab/sub-tab.component';
+import { TabViewModule } from 'primeng/tabview';
+import { filter, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-user-tab',
@@ -13,30 +13,47 @@ import { SubTabComponent, SubTab } from '../../shared/components/sub-tab/sub-tab
     CommonModule,
     RouterModule,
     CardModule,
-    SubTabComponent
+    TabViewModule
   ],
   templateUrl: './user-tab.component.html',
   styleUrl: './user-tab.component.scss'
 })
-export class UserTabComponent {
-  subTabs: SubTab[] = [
-    {
-      id: 'my-tasks',
-      label: 'My Tasks',
-      icon: 'pi-check-square',
-      routePath: '/user/my-tasks'
-    },
-    {
-      id: 'my-history',
-      label: 'My History',
-      icon: 'pi-history',
-      routePath: '/user/my-history'
-    },
-    {
-      id: 'notifications',
-      label: 'Notifications',
-      icon: 'pi-bell',
-      routePath: '/user/notifications'
+export class UserTabComponent implements OnInit, OnDestroy {
+  activeTabIndex = 0;
+  private destroy$ = new Subject<void>();
+  
+  private tabRoutes = ['/user/my-tasks', '/user/my-history', '/user/notifications'];
+
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.updateActiveTabFromRoute();
+    
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.updateActiveTabFromRoute();
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onTabChange(event: any) {
+    const newIndex = event.index;
+    if (newIndex !== this.activeTabIndex && this.tabRoutes[newIndex]) {
+      this.router.navigate([this.tabRoutes[newIndex]]);
     }
-  ];
+  }
+
+  private updateActiveTabFromRoute() {
+    const currentUrl = this.router.url;
+    const tabIndex = this.tabRoutes.findIndex(route => currentUrl.startsWith(route));
+    if (tabIndex !== -1) {
+      this.activeTabIndex = tabIndex;
+    }
+  }
 }

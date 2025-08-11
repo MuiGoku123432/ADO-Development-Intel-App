@@ -1,151 +1,122 @@
-<div class="my-tasks-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-title">
-        <h1><i class="pi pi-check-square"></i> My Tasks</h1>
-        <p>Personal productivity dashboard for your assigned work items</p>
-      </div>
-      
-      <div class="header-stats" *ngIf="!loading()">
-        <div class="stat-item">
-          <span class="stat-number">{{ activeTasks() }}</span>
-          <span class="stat-label">Active</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">{{ highPriorityTasks() }}</span>
-          <span class="stat-label">High Priority</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">{{ thisWeekTasks() }}</span>
-          <span class="stat-label">This Week</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<p-panel styleClass="my-tasks-container">
+  <!-- Header with Refresh Button using PrimeNG Card -->
+  <p-card styleClass="header-card">
+    <ng-template pTemplate="header">
+      <p-panel [style]="{display: 'flex', 'justify-content': 'space-between', 'align-items': 'center', padding: '1rem', border: 'none', background: 'transparent'}">
+        <p-card [style]="{border: 'none', background: 'transparent', padding: '0'}">
+          <ng-template pTemplate="title">
+            <span style="color: var(--primary-color); font-weight: 700; font-size: 1.5rem;">My Tasks</span>
+          </ng-template>
+        </p-card>
+        <p-button 
+          label="Refresh" 
+          icon="pi pi-refresh"
+          (onClick)="loadMyTasks()"
+          [loading]="loading()">
+        </p-button>
+      </p-panel>
+    </ng-template>
+  </p-card>
 
-  <!-- Summary Cards -->
-  <div class="task-summary" *ngIf="!loading()">
-    <p-card styleClass="summary-card">
-      <div class="summary-content">
-        <div class="summary-number">{{ activeTasks() }}</div>
-        <div class="summary-label">Active Tasks</div>
-        <p-tag 
-          [severity]="activeTasks() > 0 ? 'info' : 'success'" 
-          [value]="activeTasks() > 0 ? 'In Progress' : 'All Done'">
-        </p-tag>
-      </div>
-    </p-card>
+  <!-- Simple PrimeNG Table -->
+  <p-table 
+    [value]="workItems()" 
+    [loading]="loading()"
+    [paginator]="true" 
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [tableStyle]="{'min-width': '50rem'}"
+    [sortMode]="'multiple'">
     
-    <p-card styleClass="summary-card">
-      <div class="summary-content">
-        <div class="summary-number">{{ highPriorityTasks() }}</div>
-        <div class="summary-label">High Priority</div>
-        <p-tag 
-          [severity]="highPriorityTasks() > 0 ? 'danger' : 'success'" 
-          [value]="highPriorityTasks() > 0 ? 'Urgent' : 'Clear'">
-        </p-tag>
-      </div>
-    </p-card>
+    <!-- ID Column -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id">
+          ID
+          <p-sortIcon field="id"></p-sortIcon>
+        </th>
+        <th pSortableColumn="title">
+          Title
+          <p-sortIcon field="title"></p-sortIcon>
+        </th>
+        <th pSortableColumn="type">
+          Type
+          <p-sortIcon field="type"></p-sortIcon>
+        </th>
+        <th pSortableColumn="state">
+          State
+          <p-sortIcon field="state"></p-sortIcon>
+        </th>
+        <th pSortableColumn="priority">
+          Priority
+          <p-sortIcon field="priority"></p-sortIcon>
+        </th>
+        <th>Story Points</th>
+        <th pSortableColumn="changed_date">
+          Updated
+          <p-sortIcon field="changed_date"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
     
-    <p-card styleClass="summary-card">
-      <div class="summary-content">
-        <div class="summary-number">{{ thisWeekTasks() }}</div>
-        <div class="summary-label">This Week</div>
-        <p-tag severity="success" value="Updated"></p-tag>
-      </div>
-    </p-card>
-  </div>
+    <!-- Data Rows -->
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>
+          <span class="title-cell">
+            {{ item.title || 'Untitled' }}
+          </span>
+        </td>
+        <td>
+          <p-tag 
+            [value]="item.type || 'Unknown'"
+            severity="info">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
+            [value]="item.state || 'Unknown'"
+            [severity]="getStateSeverity(item.state)">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
+            [value]="getPriorityLabel(item.priority)"
+            [severity]="getPrioritySeverity(item.priority)">
+          </p-tag>
+        </td>
+        <td class="text-center">
+          {{ item.story_points || '-' }}
+        </td>
+        <td>
+          {{ item.changed_date ? (item.changed_date | date:'short') : '-' }}
+        </td>
+      </tr>
+    </ng-template>
 
-  <!-- Tasks Table -->
-  <div class="tasks-table-container">
-    <app-shared-data-table
-      [config]="tableConfig()"
-      [stateKey]="'my-tasks-table'"
-      (refresh)="onTableRefresh()"
-      (configChange)="onTableConfigChange($event)">
-      
-      <!-- Custom Empty State Template -->
-      <ng-template #emptyTemplate>
-        <div class="custom-empty-state">
-          <i class="pi pi-check-circle empty-icon"></i>
-          <h3>All caught up!</h3>
-          <p>You have no tasks assigned. Time to take a break or pick up new work!</p>
-          <p-button 
-            label="Create New Task" 
-            icon="pi pi-plus" 
-            severity="primary"
-            (onClick)="openCreateTaskDialog()">
-          </p-button>
-        </div>
-      </ng-template>
-
-      <!-- Custom Loading Template -->
-      <ng-template #loadingTemplate>
-        <div class="custom-loading">
-          <div class="loading-skeleton">
-            <div class="skeleton-row" *ngFor="let item of [1,2,3,4,5]">
-              <div class="skeleton-cell small"></div>
-              <div class="skeleton-cell large"></div>
-              <div class="skeleton-cell medium"></div>
-              <div class="skeleton-cell small"></div>
-              <div class="skeleton-cell medium"></div>
-              <div class="skeleton-cell small"></div>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-
-    </app-shared-data-table>
-  </div>
-
-</div>
-
-<!-- Create Task Dialog -->
-<p-dialog 
-  header="Create New Task" 
-  [visible]="showCreateTaskDialog()"
-  (onHide)="closeCreateTaskDialog()"
-  [modal]="true"
-  [style]="{ width: '600px' }"
-  [draggable]="false"
-  [resizable]="false">
-
-  <div class="create-task-form">
-    <div class="form-placeholder">
-      <i class="pi pi-plus-circle" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
-      <h3>Create New Task</h3>
-      <p>Task creation form will be implemented here</p>
-      
-      <div class="form-preview">
-        <ul>
-          <li>Title (required)</li>
-          <li>Description</li>
-          <li>Work Item Type (Task, Bug, User Story)</li>
-          <li>Priority</li>
-          <li>Story Points/Effort</li>
-          <li>Area Path</li>
-          <li>Iteration Path</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="dialog-footer">
-      <p-button 
-        label="Cancel" 
-        icon="pi pi-times"
-        (onClick)="closeCreateTaskDialog()"
-        severity="secondary">
-      </p-button>
-      <p-button 
-        label="Create Task" 
-        icon="pi pi-check"
-        severity="primary"
-        [disabled]="true">
-      </p-button>
-    </div>
-  </ng-template>
-
-</p-dialog>
+    <!-- Empty State using PrimeNG components -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">
+          <p-panel>
+            <ng-template pTemplate="content">
+              <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+                <i class="pi pi-inbox" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+              </p-panel>
+            </ng-template>
+            <ng-template pTemplate="title">
+              No Tasks Found
+            </ng-template>
+            <ng-template pTemplate="content">
+              <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+                <span style="color: var(--text-color-secondary);">You don't have any work items assigned to you.</span>
+              </p-panel>
+            </ng-template>
+          </p-panel>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-panel>

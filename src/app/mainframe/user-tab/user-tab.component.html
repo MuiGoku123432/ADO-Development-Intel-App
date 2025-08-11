@@ -1,8 +1,26 @@
 <div class="user-tab-container">
-  <app-sub-tab [tabs]="subTabs"></app-sub-tab>
-  
-  <!-- Router outlet for subtab content -->
-  <div class="subtab-content-area">
-    <router-outlet></router-outlet>
-  </div>
+  <p-tabView 
+    [(activeIndex)]="activeTabIndex" 
+    (onChange)="onTabChange($event)"
+    styleClass="sub-tabview">
+    
+    <p-tabPanel header="My Tasks" leftIcon="pi pi-check-square">
+      <div class="subtab-content-wrapper">
+        <router-outlet *ngIf="activeTabIndex === 0"></router-outlet>
+      </div>
+    </p-tabPanel>
+    
+    <p-tabPanel header="My History" leftIcon="pi pi-history">
+      <div class="subtab-content-wrapper">
+        <router-outlet *ngIf="activeTabIndex === 1"></router-outlet>
+      </div>
+    </p-tabPanel>
+    
+    <p-tabPanel header="Notifications" leftIcon="pi pi-bell">
+      <div class="subtab-content-wrapper">
+        <router-outlet *ngIf="activeTabIndex === 2"></router-outlet>
+      </div>
+    </p-tabPanel>
+    
+  </p-tabView>
 </div>

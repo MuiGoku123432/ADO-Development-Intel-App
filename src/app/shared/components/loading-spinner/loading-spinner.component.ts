@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -9,7 +9,6 @@ export type LoadingSize = 'small' | 'medium' | 'large';
 export interface SkeletonItem {
   shape: 'rectangle' | 'circle';
   size: string;
-  borderRadius?: string;
   width?: string;
   height?: string;
 }
@@ -22,97 +21,47 @@ export interface SkeletonItem {
   styleUrls: ['./loading-spinner.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LoadingSpinnerComponent implements OnInit {
+export class LoadingSpinnerComponent {
   @Input() type: LoadingType = 'spinner';
   @Input() size: LoadingSize = 'medium';
   @Input() message?: string;
   @Input() overlay: boolean = false;
   @Input() show: boolean = true;
-  @Input() strokeWidth?: string;
   @Input() skeletonCount: number = 3;
   @Input() customSkeletons?: SkeletonItem[];
 
-  // Computed properties for PrimeNG components
-  spinnerStyle: { [key: string]: string } = {};
-  spinnerClass: string = '';
-  skeletonItems: SkeletonItem[] = [];
-
-  constructor() {
-    console.log('🔄 LoadingSpinnerComponent initialized');
-  }
-
-  ngOnInit(): void {
-    this.setupSpinnerProperties();
-    this.setupSkeletonItems();
-  }
-
-  private setupSpinnerProperties(): void {
-    // Configure spinner based on size
+  get spinnerSize(): string {
     switch (this.size) {
-      case 'small':
-        this.spinnerStyle = { 
-          width: '24px', 
-          height: '24px'
-        };
-        this.spinnerClass = 'loading-spinner-small';
-        break;
-      case 'large':
-        this.spinnerStyle = { 
-          width: '64px', 
-          height: '64px'
-        };
-        this.spinnerClass = 'loading-spinner-large';
-        break;
-      default: // medium
-        this.spinnerStyle = { 
-          width: '40px', 
-          height: '40px'
-        };
-        this.spinnerClass = 'loading-spinner-medium';
-        break;
-    }
-
-    // Add overlay styles if needed
-    if (this.overlay) {
-      this.spinnerClass += ' loading-spinner-overlay';
+      case 'small': return '24px';
+      case 'large': return '64px';
+      default: return '40px';
     }
   }
 
-  private setupSkeletonItems(): void {
-    if (this.customSkeletons) {
-      this.skeletonItems = this.customSkeletons;
-      return;
-    }
-
-    // Generate default skeleton items based on type and count
-    this.skeletonItems = [];
-    const baseHeight = this.getSkeletonHeight();
+  get defaultSkeletons(): SkeletonItem[] {
+    if (this.customSkeletons) return this.customSkeletons;
     
-    for (let i = 0; i < this.skeletonCount; i++) {
-      this.skeletonItems.push({
-        shape: 'rectangle',
-        size: baseHeight,
-        width: '100%',
-        height: baseHeight,
-        borderRadius: '4px'
-      });
-    }
+    return Array.from({ length: this.skeletonCount }, () => ({
+      shape: 'rectangle' as const,
+      size: this.skeletonSize,
+      width: '100%',
+      height: this.skeletonSize
+    }));
   }
 
-  private getSkeletonHeight(): string {
+  get skeletonSize(): string {
     switch (this.size) {
-      case 'small':
-        return '32px';
-      case 'large':
-        return '64px';
-      default:
-        return '48px';
+      case 'small': return '32px';
+      case 'large': return '64px';
+      default: return '48px';
     }
   }
 
-  /**
-   * Create skeleton items for table rows
-   */
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  // Static utility methods for creating skeleton layouts
   static createTableSkeletons(rowCount: number = 5, columnCount: number = 6): SkeletonItem[] {
     const skeletons: SkeletonItem[] = [];
     
@@ -132,8 +81,7 @@ export class LoadingSpinnerComponent implements OnInit {
           shape: 'rectangle',
           size: '32px',
           width,
-          height: '20px',
-          borderRadius: '4px'
+          height: '20px'
         });
       }
     }
@@ -141,9 +89,6 @@ export class LoadingSpinnerComponent implements OnInit {
     return skeletons;
   }
 
-  /**
-   * Create skeleton items for card layouts
-   */
   static createCardSkeletons(cardCount: number = 3): SkeletonItem[] {
     const skeletons: SkeletonItem[] = [];
     
@@ -157,8 +102,7 @@ export class LoadingSpinnerComponent implements OnInit {
         shape: 'rectangle',
         size: '20px',
         width: '60%',
-        height: '20px',
-        borderRadius: '4px'
+        height: '20px'
       });
       
       // Card content lines
@@ -166,50 +110,16 @@ export class LoadingSpinnerComponent implements OnInit {
         shape: 'rectangle',
         size: '16px',
         width: '100%',
-        height: '16px',
-        borderRadius: '4px'
+        height: '16px'
       });
       skeletons.push({
         shape: 'rectangle',
         size: '16px',
         width: '80%',
-        height: '16px',
-        borderRadius: '4px'
+        height: '16px'
       });
     }
     
     return skeletons;
-  }
-
-  /**
-   * Track by function for ngFor performance
-   */
-  trackByIndex(index: number): number {
-    return index;
-  }
-
-  /**
-   * Check if this is a table-specific skeleton layout
-   */
-  isTableSkeleton(): boolean {
-    return this.customSkeletons !== undefined && this.customSkeletons.length > 6;
-  }
-
-  /**
-   * Organize skeleton items into table rows
-   */
-  getTableRows(): SkeletonItem[][] {
-    if (!this.customSkeletons) {
-      return [];
-    }
-
-    const rows: SkeletonItem[][] = [];
-    const columnsPerRow = 6; // Default table column count
-    
-    for (let i = 0; i < this.customSkeletons.length; i += columnsPerRow) {
-      rows.push(this.customSkeletons.slice(i, i + columnsPerRow));
-    }
-    
-    return rows;
   }
 }

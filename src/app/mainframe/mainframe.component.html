@@ -1,26 +1,97 @@
-<div class="app-container">
-  <!-- App Header -->
-  <header class="app-header">
-    <h1 class="app-title">ADO Development Intel</h1>
-    <div class="app-actions">
-      <p-button 
-        icon="pi pi-robot" 
-        [rounded]="true"
-        severity="secondary"
-        (onClick)="showChatbot()"
-        pTooltip="AI Assistant">
-      </p-button>
-    </div>
-  </header>
+<p-panel styleClass="app-container">
+  <!-- App Header using PrimeNG Panel -->
+  <p-panel styleClass="app-header">
+    <ng-template pTemplate="header">
+      <p-panel [style]="{display: 'flex', 'justify-content': 'space-between', 'align-items': 'center', width: '100%', border: 'none', background: 'transparent'}">
+        <p-card [style]="{border: 'none', background: 'transparent', padding: '0'}">
+          <ng-template pTemplate="title">
+            <span style="color: var(--primary-color); font-size: 1.75rem; font-weight: 700;">ADO Development Intel</span>
+          </ng-template>
+        </p-card>
+        <p-button 
+          icon="pi pi-robot" 
+          [rounded]="true"
+          (onClick)="showChatbot()"
+          pTooltip="AI Assistant">
+        </p-button>
+      </p-panel>
+    </ng-template>
+  </p-panel>
 
-  <!-- Main Content with Custom Tabs -->
+  <!-- Main Content with Simple PrimeNG Tabs -->
   <main class="main-content">
-    <app-main-tab [tabs]="mainTabs"></app-main-tab>
-    
-    <!-- Router outlet for tab content -->
-    <div class="tab-content-area">
-      <router-outlet></router-outlet>
-    </div>
+    <p-tabView>
+      
+      <p-tabPanel header="My Tasks" leftIcon="pi pi-user">
+        <p-panel styleClass="tab-content-wrapper" [style]="{border: 'none', background: 'transparent'}">
+          <app-my-tasks></app-my-tasks>
+        </p-panel>
+      </p-tabPanel>
+      
+      <p-tabPanel header="Work Items" leftIcon="pi pi-sitemap">
+        <p-card>
+          <ng-template pTemplate="content">
+            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+              <i class="pi pi-sitemap" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+            </p-panel>
+          </ng-template>
+          <ng-template pTemplate="title">
+            Work Items
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            All work items across projects
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+              <span style="color: var(--text-color-secondary); font-style: italic;">Coming soon...</span>
+            </p-panel>
+          </ng-template>
+        </p-card>
+      </p-tabPanel>
+      
+      <p-tabPanel header="Repositories" leftIcon="pi pi-code">
+        <p-card>
+          <ng-template pTemplate="content">
+            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+              <i class="pi pi-code" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+            </p-panel>
+          </ng-template>
+          <ng-template pTemplate="title">
+            Repositories
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            Repository management and pull requests
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+              <span style="color: var(--text-color-secondary); font-style: italic;">Coming soon...</span>
+            </p-panel>
+          </ng-template>
+        </p-card>
+      </p-tabPanel>
+      
+      <p-tabPanel header="Pipelines" leftIcon="pi pi-sync">
+        <p-card>
+          <ng-template pTemplate="content">
+            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+              <i class="pi pi-sync" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+            </p-panel>
+          </ng-template>
+          <ng-template pTemplate="title">
+            Pipelines
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            CI/CD pipeline monitoring and management
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+              <span style="color: var(--text-color-secondary); font-style: italic;">Coming soon...</span>
+            </p-panel>
+          </ng-template>
+        </p-card>
+      </p-tabPanel>
+      
+    </p-tabView>
   </main>
 
   <!-- Floating Chatbot Button (Alternative to header button) -->
@@ -29,7 +100,6 @@
     icon="pi pi-robot" 
     [rounded]="true"
     size="large"
-    severity="info"
     (onClick)="showChatbot()"
     pTooltip="AI Assistant">
   </p-button>
@@ -42,24 +112,29 @@
     [style]="{width: '50vw', minHeight: '60vh'}"
     [draggable]="false"
     [resizable]="true">
-    <div class="chatbot-placeholder">
-      <div class="text-center p-4">
-        <i class="pi pi-robot" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
-        <h3>ADO AI Assistant</h3>
-        <p>Natural language interface for Azure DevOps operations</p>
-        <p><em>Integration with MCP Server coming soon...</em></p>
-        
-        <div class="mt-4 p-3" style="background: var(--surface-section); border-radius: 8px;">
-          <strong>Planned Features:</strong>
-          <ul class="text-left mt-2">
-            <li>"List my open tasks"</li>
-            <li>"Show repos with pending PRs"</li>
-            <li>"What builds failed today?"</li>
-            <li>"Create new work item"</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <p-card>
+      <ng-template pTemplate="content">
+        <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+          <i class="pi pi-robot" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+        </p-panel>
+      </ng-template>
+      <ng-template pTemplate="title">
+        ADO AI Assistant
+      </ng-template>
+      <ng-template pTemplate="subtitle">
+        Natural language interface for Azure DevOps operations
+      </ng-template>
+      <ng-template pTemplate="content">
+        <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
+          <span style="color: var(--text-color-secondary); font-style: italic;">Integration with MCP Server coming soon...</span>
+        </p-panel>
+        <p-divider></p-divider>
+        <p-fieldset legend="Planned Features">
+          <p-listbox [options]="plannedFeatures" optionLabel="label" [readonly]="true">
+          </p-listbox>
+        </p-fieldset>
+      </ng-template>
+    </p-card>
     
     <ng-template pTemplate="footer">
       <p-button 
@@ -70,4 +145,4 @@
       </p-button>
     </ng-template>
   </p-dialog>
-</div>
+</p-panel>

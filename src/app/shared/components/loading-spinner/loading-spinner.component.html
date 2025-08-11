@@ -1,33 +1,33 @@
-<!-- Loading Spinner Container -->
+<!-- Loading Container -->
 <div *ngIf="show" class="loading-container" [class.loading-overlay-container]="overlay">
   
   <!-- Progress Spinner Mode -->
   <div *ngIf="type === 'spinner'" class="spinner-content">
     <p-progressSpinner 
-      [style]="spinnerStyle"
-      [styleClass]="spinnerClass"
-      [strokeWidth]="strokeWidth || '4'">
+      [style]="{width: spinnerSize, height: spinnerSize}"
+      styleClass="loading-spinner"
+      strokeWidth="4">
     </p-progressSpinner>
     
-    <div *ngIf="message" class="loading-message" [class]="'loading-message-' + size">
+    <div *ngIf="message" class="loading-message">
       {{ message }}
     </div>
   </div>
 
   <!-- Skeleton Mode -->
   <div *ngIf="type === 'skeleton'" class="skeleton-content">
-    <div *ngIf="message" class="loading-message loading-message-skeleton">
+    <div *ngIf="message" class="loading-message">
       {{ message }}
     </div>
     
     <div class="skeleton-items">
       <p-skeleton 
-        *ngFor="let item of skeletonItems; trackBy: trackByIndex"
+        *ngFor="let item of defaultSkeletons; trackBy: trackByIndex"
         [shape]="item.shape"
         [size]="item.size"
         [width]="item.width || 'auto'"
         [height]="item.height || 'auto'"
-        [borderRadius]="item.borderRadius || '4px'"
+        borderRadius="4px"
         styleClass="skeleton-item">
       </p-skeleton>
     </div>
@@ -36,20 +36,3 @@
   <!-- Overlay Backdrop -->
   <div *ngIf="overlay" class="loading-backdrop"></div>
 </div>
-
-<!-- Table-specific skeleton layout -->
-<ng-container *ngIf="show && type === 'skeleton' && customSkeletons">
-  <div class="skeleton-table" *ngIf="isTableSkeleton()">
-    <div class="skeleton-table-row" *ngFor="let row of getTableRows(); trackBy: trackByIndex">
-      <div class="skeleton-table-cell" *ngFor="let cell of row; trackBy: trackByIndex">
-        <p-skeleton 
-          [shape]="cell.shape"
-          [size]="cell.size"
-          [width]="cell.width || 'auto'"
-          [height]="cell.height || 'auto'"
-          [borderRadius]="cell.borderRadius || '4px'">
-        </p-skeleton>
-      </div>
-    </div>
-  </div>
-</ng-container>

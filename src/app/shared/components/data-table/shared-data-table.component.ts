@@ -156,14 +156,14 @@ export class SharedDataTableComponent<T = any> implements OnInit, OnDestroy {
     // Sync loading state from config
     effect(() => {
       this.loading.set(this.config?.loading || false);
-    });
+    }, { allowSignalWrites: true });
 
     // Sync selected items from config
     effect(() => {
       if (this.config?.selectedItems) {
         this.selectedItems.set(this.config.selectedItems);
       }
-    });
+    }, { allowSignalWrites: true });
 
     // Initialize column visibility
     effect(() => {
@@ -176,7 +176,7 @@ export class SharedDataTableComponent<T = any> implements OnInit, OnDestroy {
         }));
         this.columnVisibility.set(visibility);
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {

@@ -1,8 +1,12 @@
-use serde::{Deserialize, Serialize};
 use std::env;
-use std::collections::HashMap;
+use tauri::State;
+use serde::{Deserialize, Serialize};
+use parking_lot::RwLock;
 
-// ADO Credentials structure
+use azure_devops_rust_api::{Credential, wit};
+use azure_devops_rust_api::wit::models::{Wiql, WorkItemBatchGetRequest};
+
+// ADO Credentials structure - kept for compatibility with existing .env setup
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AdoCredentials {
     pub organization: String,
@@ -10,59 +14,254 @@ pub struct AdoCredentials {
     pub project: Option<String>,
 }
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+// Simple in-memory auth state
+#[derive(Default)]
+struct AuthState {
+    cred: RwLock<Option<Credential>>,
+    org: RwLock<Option<String>>,
+    project: RwLock<Option<String>>,
+}
+
+// Lightweight work item structure for the frontend
+#[derive(Serialize)]
+struct WorkItemLite {
+    id: i32,
+    title: Option<String>,
+    state: Option<String>,
+    r#type: Option<String>,
+    assigned_to: Option<String>,
+    description: Option<String>,
+    created_date: Option<String>,
+    changed_date: Option<String>,
+    priority: Option<i32>,
+    story_points: Option<f64>,
+    area_path: Option<String>,
+    iteration_path: Option<String>,
+}
+
+// User profile response structure for frontend compatibility (keeping existing interface)
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserProfile {
+    pub display_name: Option<String>,
+    pub email_address: Option<String>,
+    pub id: Option<String>,
+    pub public_alias: Option<String>,
+}
+
+#[tauri::command]
+fn set_pat(state: State<AuthState>, pat: String, organization: String, project: Option<String>) -> Result<(), String> {
+    println!("🔐 [COMMAND] set_pat invoked");
+    println!("  ├─ Organization: {}", organization);
+    println!("  ├─ PAT Length: {} characters", pat.len());
+    println!("  └─ Project: {:?}", project);
+    
+    // Store credentials in memory (in production, consider secure storage)
+    *state.cred.write() = Some(Credential::from_pat(pat));
+    *state.org.write() = Some(organization);
+    *state.project.write() = project;
+    
+    println!("✅ [COMMAND] PAT stored successfully");
+    Ok(())
+}
+
+/// Get all work items assigned to the current user in {org}/{project}
+#[tauri::command]
+async fn get_my_work_items(
+    state: State<'_, AuthState>,
+    organization: Option<String>,
+    project: Option<String>,
+) -> Result<Vec<WorkItemLite>, String> {
+    println!("📞 [COMMAND] get_my_work_items invoked");
+    let start_time = std::time::Instant::now();
+
+    // Get credentials from state or fall back to environment
+    let (cred, org, proj) = {
+        let cred_guard = state.cred.read();
+        let org_guard = state.org.read();
+        let proj_guard = state.project.read();
+        
+        if let (Some(cred), Some(org)) = (cred_guard.clone(), org_guard.clone()) {
+            println!("🔐 [ADO] Using stored credentials");
+            let project = project.or_else(|| proj_guard.clone()).unwrap_or_else(|| "DefaultProject".to_string());
+            (cred, org, project)
+        } else {
+            println!("🔐 [ADO] No stored credentials, trying environment variables");
+            drop(cred_guard);
+            drop(org_guard);
+            drop(proj_guard);
+            
+            // Load from environment if not in state
+            dotenv::dotenv().ok();
+            let org = organization.or_else(|| env::var("ADO_ORGANIZATION").ok())
+                .ok_or_else(|| "No organization provided and ADO_ORGANIZATION not found".to_string())?;
+            let pat = env::var("ADO_PAT")
+                .map_err(|_| "ADO_PAT environment variable not found".to_string())?;
+            let proj = project.or_else(|| env::var("ADO_PROJECT").ok())
+                .unwrap_or_else(|| "DefaultProject".to_string());
+            
+            let cred = Credential::from_pat(pat);
+            (cred, org, proj)
+        }
+    };
+
+    println!("🚀 [ADO] Building Work Item Tracking client");
+    println!("  ├─ Organization: {}", org);
+    println!("  └─ Project: {}", proj);
+
+    // Build Work Item Tracking client
+    let wit_client = wit::ClientBuilder::new(cred).build();
+
+    // 1) Query IDs with WIQL — "Assigned To = @Me"
+    let wiql = Wiql {
+        query: Some(
+            "SELECT [System.Id] \
+             FROM WorkItems \
+             WHERE [System.AssignedTo] = @Me \
+               AND [System.State] <> 'Removed' \
+             ORDER BY [System.ChangedDate] DESC"
+                .into(),
+        ),
+    };
+
+    println!("📡 [ADO] Executing WIQL query for work items assigned to @Me");
+    
+    // POST _apis/wit/wiql - Fix parameter order based on API signature
+    let wiql_resp = wit_client
+        .wiql_client()
+        .query_by_wiql(&org, wiql, &proj, "")  // org, body, project, team
+        .await
+        .map_err(|e| {
+            let elapsed = start_time.elapsed();
+            println!("❌ [ADO] WIQL query failed ({:?}): {:?}", elapsed, e);
+            format!("WIQL query failed: {}", e)
+        })?;
+
+    // Parse the query result → IDs - the response should already be the parsed result
+    let wiql_result = wiql_resp;
+
+    let ids: Vec<i32> = wiql_result
+        .work_items
+        .into_iter()
+        .filter_map(|r| r.id)
+        .collect();
+
+    println!("📊 [ADO] Found {} work item IDs from WIQL query", ids.len());
+
+    if ids.is_empty() {
+        let elapsed = start_time.elapsed();
+        println!("✅ [ADO] No work items found ({:?})", elapsed);
+        return Ok(vec![]);
+    }
+
+    // 2) Batch fetch the fields we want for those IDs (max 200 per request)
+    let wanted_fields = vec![
+        "System.Id".into(),
+        "System.Title".into(),
+        "System.State".into(),
+        "System.WorkItemType".into(),
+        "System.AssignedTo".into(),
+        "System.Description".into(),
+        "System.CreatedDate".into(),
+        "System.ChangedDate".into(),
+        "System.AreaPath".into(),
+        "System.IterationPath".into(),
+        "Microsoft.VSTS.Common.Priority".into(),
+        "Microsoft.VSTS.Scheduling.StoryPoints".into(),
+    ];
+
+    println!("📡 [ADO] Batch fetching work item details for {} items", ids.len());
+
+    let batch = WorkItemBatchGetRequest {
+        fields: wanted_fields,
+        ids,
+        ..Default::default()
+    };
+
+    let items = wit_client
+        .work_items_client()
+        .get_work_items_batch(&org, batch, &proj)  // org, body, project
+        .await
+        .map_err(|e| {
+            let elapsed = start_time.elapsed();
+            println!("❌ [ADO] Batch request failed ({:?}): {:?}", elapsed, e);
+            format!("Batch request failed: {}", e)
+        })?;
+
+    let result: Vec<WorkItemLite> = items
+        .value
+        .into_iter()
+        .map(|wi| {
+            let f = wi.fields;
+            
+            // Helper function to extract string field
+            let get_string_field = |field_name: &str| -> Option<String> {
+                f.get(field_name).and_then(|v| v.as_str()).map(|s| s.to_string())
+            };
+            
+            // Helper function to extract i32 field
+            let get_i32_field = |field_name: &str| -> Option<i32> {
+                f.get(field_name).and_then(|v| v.as_i64()).map(|i| i as i32)
+            };
+            
+            // Helper function to extract f64 field
+            let get_f64_field = |field_name: &str| -> Option<f64> {
+                f.get(field_name).and_then(|v| v.as_f64())
+            };
+
+            WorkItemLite {
+                id: wi.id,
+                title: get_string_field("System.Title"),
+                state: get_string_field("System.State"),
+                r#type: get_string_field("System.WorkItemType"),
+                assigned_to: get_string_field("System.AssignedTo"),
+                description: get_string_field("System.Description"),
+                created_date: get_string_field("System.CreatedDate"),
+                changed_date: get_string_field("System.ChangedDate"),
+                priority: get_i32_field("Microsoft.VSTS.Common.Priority"),
+                story_points: get_f64_field("Microsoft.VSTS.Scheduling.StoryPoints"),
+                area_path: get_string_field("System.AreaPath"),
+                iteration_path: get_string_field("System.IterationPath"),
+            }
+        })
+        .collect();
+
+    let elapsed = start_time.elapsed();
+    println!("✅ [ADO] Successfully retrieved {} work items ({:?})", result.len(), elapsed);
+
+    Ok(result)
+}
+
+// Keep existing commands for compatibility with the current frontend
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-/// Get ADO credentials from environment variables
+/// Get ADO credentials from environment variables (keeping for compatibility)
 #[tauri::command]
 fn get_ado_credentials() -> Result<AdoCredentials, String> {
     println!("📞 [COMMAND] get_ado_credentials invoked");
-    let start_time = std::time::Instant::now();
     
     // Load .env file if it exists
     dotenv::dotenv().ok();
-    println!("🔄 Environment variables reloaded from .env file");
-
-    println!("🔍 Attempting to read ADO_ORGANIZATION environment variable...");
+    
     let organization = env::var("ADO_ORGANIZATION")
-        .map_err(|e| {
-            println!("❌ ADO_ORGANIZATION not found: {:?}", e);
-            "ADO_ORGANIZATION environment variable not found".to_string()
-        })?;
+        .map_err(|_| "ADO_ORGANIZATION environment variable not found".to_string())?;
 
-    println!("🔍 Attempting to read ADO_PAT environment variable...");
     let personal_access_token = env::var("ADO_PAT")
-        .map_err(|e| {
-            println!("❌ ADO_PAT not found: {:?}", e);
-            "ADO_PAT environment variable not found".to_string()
-        })?;
+        .map_err(|_| "ADO_PAT environment variable not found".to_string())?;
 
-    println!("🔍 Attempting to read ADO_PROJECT environment variable (optional)...");
-    // Project is optional - can be provided via environment or configured in app
     let project = env::var("ADO_PROJECT").ok().filter(|p| !p.trim().is_empty());
 
     if organization.trim().is_empty() {
-        println!("❌ ADO_ORGANIZATION is empty after trimming");
         return Err("ADO_ORGANIZATION cannot be empty".to_string());
     }
 
     if personal_access_token.trim().is_empty() {
-        println!("❌ ADO_PAT is empty after trimming");
         return Err("ADO_PAT cannot be empty".to_string());
     }
 
-    let elapsed = start_time.elapsed();
-    println!("🔐 Successfully loaded ADO credentials for organization: {} (took {:?})", organization, elapsed);
-    println!("📊 PAT length: {} characters", personal_access_token.len());
-    
-    if let Some(ref proj) = project {
-        println!("📁 Default project configured: {}", proj);
-    } else {
-        println!("📁 No default project configured - will use app default or user selection");
-    }
+    println!("✅ Successfully loaded ADO credentials for organization: {}", organization);
 
     Ok(AdoCredentials {
         organization: organization.trim().to_string(),
@@ -71,179 +270,88 @@ fn get_ado_credentials() -> Result<AdoCredentials, String> {
     })
 }
 
-/// Validate if ADO configuration is available
+/// Validate if ADO configuration is available (keeping for compatibility)
 #[tauri::command]
 fn validate_ado_config() -> bool {
     println!("📞 [COMMAND] validate_ado_config invoked");
-    let start_time = std::time::Instant::now();
     
     dotenv::dotenv().ok();
-    println!("🔄 Environment variables reloaded for validation");
     
-    println!("🔍 Checking ADO_ORGANIZATION presence...");
     let has_org = env::var("ADO_ORGANIZATION").is_ok();
-    
-    println!("🔍 Checking ADO_PAT presence...");
     let has_pat = env::var("ADO_PAT").is_ok();
     
-    println!("🔍 Checking ADO_PROJECT presence (optional)...");
-    let has_project = env::var("ADO_PROJECT").is_ok();
-    
-    let is_valid = has_org && has_pat;
-    let elapsed = start_time.elapsed();
-    
-    println!("📊 Configuration validation results (took {:?}):", elapsed);
-    println!("  ├─ ADO_ORGANIZATION: {}", if has_org { "✅ Present" } else { "❌ Missing" });
-    println!("  ├─ ADO_PAT: {}", if has_pat { "✅ Present" } else { "❌ Missing" });
-    println!("  └─ ADO_PROJECT: {}", if has_project { "✅ Present" } else { "⚪ Optional (not set)" });
-    
-    if is_valid {
-        println!("✅ ADO environment configuration is valid and ready for use");
-    } else {
-        println!("❌ ADO environment configuration is incomplete:");
-        if !has_org { println!("  🔸 Missing required ADO_ORGANIZATION environment variable"); }
-        if !has_pat { println!("  🔸 Missing required ADO_PAT environment variable"); }
-        println!("  💡 Tip: Create a .env file in the project root with these variables");
-    }
-    
-    is_valid
+    has_org && has_pat
 }
 
-// Diagnostic information structure
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AuthDiagnostics {
-    pub environment_status: HashMap<String, String>,
-    pub validation_results: HashMap<String, bool>,
-    pub configuration_health: String,
-    pub recommendations: Vec<String>,
-    pub system_info: HashMap<String, String>,
-}
-
-/// Get comprehensive authentication diagnostics
+/// Validate ADO Personal Access Token using native Azure DevOps API (keeping for compatibility)
 #[tauri::command]
-fn get_auth_diagnostics() -> AuthDiagnostics {
-    println!("📞 [COMMAND] get_auth_diagnostics invoked");
-    println!("🔬 Performing comprehensive authentication system analysis...");
-    let start_time = std::time::Instant::now();
+async fn validate_ado_token_native() -> Result<UserProfile, String> {
+    println!("📞 [COMMAND] validate_ado_token_native invoked");
+
+    // Get credentials from environment
+    let credentials = get_ado_credentials()?;
+
+    println!("🔐 [ADO-API] Validating Personal Access Token using native API...");
+
+    // Create ADO accounts client
+    let credential = Credential::from_pat(&credentials.personal_access_token);
+    let client = azure_devops_rust_api::accounts::ClientBuilder::new(credential).build();
     
-    // Load environment
-    dotenv::dotenv().ok();
-    
-    let mut env_status = HashMap::new();
-    let mut validation_results = HashMap::new();
-    let mut recommendations = Vec::new();
-    let mut system_info = HashMap::new();
-    
-    // Check environment variables
-    println!("📊 Analyzing environment variables...");
-    let ado_org = env::var("ADO_ORGANIZATION");
-    let ado_pat = env::var("ADO_PAT"); 
-    let ado_project = env::var("ADO_PROJECT");
-    
-    match &ado_org {
-        Ok(org) => {
-            env_status.insert("ADO_ORGANIZATION".to_string(), format!("✅ Set: {}", org));
-            validation_results.insert("has_organization".to_string(), true);
-            if org.trim().is_empty() {
-                recommendations.push("ADO_ORGANIZATION is set but empty - please provide a valid organization name".to_string());
-            }
-        },
-        Err(_) => {
-            env_status.insert("ADO_ORGANIZATION".to_string(), "❌ Not set".to_string());
-            validation_results.insert("has_organization".to_string(), false);
-            recommendations.push("Set ADO_ORGANIZATION environment variable to your Azure DevOps organization name".to_string());
-        }
-    }
-    
-    match &ado_pat {
-        Ok(pat) => {
-            let masked_pat = if pat.len() > 8 {
-                format!("{}...{}", &pat[..4], &pat[pat.len()-4..])
-            } else {
-                "***".to_string()
-            };
-            env_status.insert("ADO_PAT".to_string(), format!("✅ Set: {} ({} chars)", masked_pat, pat.len()));
-            validation_results.insert("has_pat".to_string(), true);
+    // Get user accounts using the accounts API
+    let profiles = client
+        .accounts_client()
+        .list()
+        .await
+        .map_err(|e| {
+            println!("❌ [ADO-API] Profile API call failed: {:?}", e);
             
-            if pat.trim().is_empty() {
-                recommendations.push("ADO_PAT is set but empty - please provide a valid Personal Access Token".to_string());
-            } else if pat.len() < 20 {
-                recommendations.push("ADO_PAT seems too short - Azure DevOps PATs are typically longer".to_string());
+            if format!("{:?}", e).contains("401") || format!("{:?}", e).contains("Unauthorized") {
+                "Invalid or expired Personal Access Token. Please check your PAT in Azure DevOps settings.".to_string()
+            } else if format!("{:?}", e).contains("404") {
+                format!("Organization '{}' not found. Please verify the organization name.", credentials.organization)
+            } else {
+                format!("Azure DevOps API error: {:?}", e)
             }
-        },
-        Err(_) => {
-            env_status.insert("ADO_PAT".to_string(), "❌ Not set".to_string());
-            validation_results.insert("has_pat".to_string(), false);
-            recommendations.push("Set ADO_PAT environment variable to your Azure DevOps Personal Access Token".to_string());
-        }
-    }
+        })?;
+
+    // Extract the first account from the response
+    let account = profiles.value
+        .into_iter()
+        .next()
+        .ok_or_else(|| "No user accounts found - PAT may not have proper permissions".to_string())?;
     
-    match &ado_project {
-        Ok(project) => {
-            env_status.insert("ADO_PROJECT".to_string(), format!("✅ Set: {}", project));
-            validation_results.insert("has_project".to_string(), true);
-        },
-        Err(_) => {
-            env_status.insert("ADO_PROJECT".to_string(), "⚪ Optional (not set)".to_string());
-            validation_results.insert("has_project".to_string(), false);
-            recommendations.push("Consider setting ADO_PROJECT for a default project (optional)".to_string());
-        }
-    }
-    
-    // Overall health assessment
-    let has_required = validation_results.get("has_organization").copied().unwrap_or(false) && 
-                     validation_results.get("has_pat").copied().unwrap_or(false);
-    
-    let health = if has_required {
-        "🟢 HEALTHY - All required credentials configured"
-    } else {
-        "🔴 INCOMPLETE - Missing required credentials"
-    };
-    
-    // System information
-    system_info.insert("platform".to_string(), std::env::consts::OS.to_string());
-    system_info.insert("architecture".to_string(), std::env::consts::ARCH.to_string());
-    system_info.insert("dotenv_support".to_string(), "✅ Available".to_string());
-    
-    // Add .env file detection
-    let env_file_exists = std::path::Path::new(".env").exists();
-    system_info.insert("dotenv_file".to_string(), 
-        if env_file_exists { "✅ .env file found" } else { "⚪ .env file not found" }.to_string());
-    
-    if !env_file_exists && recommendations.is_empty() == false {
-        recommendations.push("Create a .env file in the project root with your ADO credentials".to_string());
-    }
-    
-    let elapsed = start_time.elapsed();
-    println!("🏁 Authentication diagnostics completed in {:?}", elapsed);
-    println!("📋 Health Status: {}", health);
-    println!("💡 Recommendations: {} items", recommendations.len());
-    
-    AuthDiagnostics {
-        environment_status: env_status,
-        validation_results,
-        configuration_health: health.to_string(),
-        recommendations,
-        system_info,
-    }
+    println!("✅ [ADO-API] Token validation successful");
+
+    Ok(UserProfile {
+        display_name: account.account_name.clone(),
+        email_address: None,
+        id: account.account_id.clone(),
+        public_alias: None,
+    })
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // Enhanced startup logging
     println!("🚀 Starting ADO Development Intel App (Tauri Backend)");
-    println!("🔧 Initializing Tauri runtime...");
     
-    // Load and validate environment on startup
+    // Load environment on startup
     dotenv::dotenv().ok();
-    println!("📂 Environment file (.env) loading attempt completed");
     
     let result = tauri::Builder::default()
+        .manage(AuthState::default())
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, get_ado_credentials, validate_ado_config, get_auth_diagnostics])
+        .invoke_handler(tauri::generate_handler![
+            greet, 
+            set_pat,
+            get_my_work_items,
+            get_ado_credentials, 
+            validate_ado_config, 
+            validate_ado_token_native
+        ])
         .setup(|_app| {
             println!("⚡ Tauri application setup completed successfully");
-            println!("🎯 Available commands: greet, get_ado_credentials, validate_ado_config, get_auth_diagnostics");
+            println!("🎯 Available commands: greet, set_pat, get_my_work_items, get_ado_credentials, validate_ado_config, validate_ado_token_native");
             Ok(())
         })
         .run(tauri::generate_context!());

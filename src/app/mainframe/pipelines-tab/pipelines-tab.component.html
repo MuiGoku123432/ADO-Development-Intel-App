@@ -1,7 +1,26 @@
 <div class="pipelines-tab-container">
-  <app-sub-tab [tabs]="subTabs"></app-sub-tab>
-  
-  <div class="subtab-content-area">
-    <router-outlet></router-outlet>
-  </div>
+  <p-tabView 
+    [(activeIndex)]="activeTabIndex" 
+    (onChange)="onTabChange($event)"
+    styleClass="sub-tabview">
+    
+    <p-tabPanel header="Builds" leftIcon="pi pi-cog">
+      <div class="subtab-content-wrapper">
+        <router-outlet *ngIf="activeTabIndex === 0"></router-outlet>
+      </div>
+    </p-tabPanel>
+    
+    <p-tabPanel header="Releases" leftIcon="pi pi-send">
+      <div class="subtab-content-wrapper">
+        <router-outlet *ngIf="activeTabIndex === 1"></router-outlet>
+      </div>
+    </p-tabPanel>
+    
+    <p-tabPanel header="Analytics" leftIcon="pi pi-chart-bar">
+      <div class="subtab-content-wrapper">
+        <router-outlet *ngIf="activeTabIndex === 2"></router-outlet>
+      </div>
+    </p-tabPanel>
+    
+  </p-tabView>
 </div>

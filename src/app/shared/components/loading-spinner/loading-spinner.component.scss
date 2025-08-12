@@ -1,4 +1,10 @@
-// Loading Container Styles
+/* Loading Spinner Component - Accessibility-First PrimeNG Styling
+   
+   GUIDELINES:
+   - Uses theme variables for consistency across light/dark modes
+   - Includes accessibility features (reduced motion, high contrast)
+   - ::ng-deep usage is scoped to component via :host
+*/
 .loading-container {
   display: flex;
   flex-direction: column;

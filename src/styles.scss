@@ -2,6 +2,10 @@
 @import 'primeng/resources/themes/lara-light-purple/theme.css';
 @import 'primeng/resources/primeng.min.css';
 @import 'primeicons/primeicons.css';
+@import 'primeflex/primeflex.css';
+
+/* App-wide PrimeNG overrides */
+@import './styles.ado-overrides.scss';
 
 /* Basic Application Layout */
 html, body {
@@ -23,8 +27,6 @@ html, body {
 }
 
 /* Utility classes */
-.text-center {
-  text-align: center;
-}
+/* Note: Use PrimeFlex p-text-center instead of custom .text-center */
 
 /* That's it - let PrimeNG theme handle the rest! */

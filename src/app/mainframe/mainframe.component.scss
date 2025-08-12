@@ -1,4 +1,9 @@
-/* MainFrame Component - Clean PrimeNG approach */
+/* MainFrame Component - Clean PrimeNG approach 
+   
+   IMPORTANT: Only use ::ng-deep with :host selector and specific class targeting
+   Example: :host ::ng-deep .app-header.p-panel { } - Good ✅
+   Example: ::ng-deep .p-panel { } - BAD ❌ (affects all panels globally)
+*/
 
 .app-container {
   height: 100vh;

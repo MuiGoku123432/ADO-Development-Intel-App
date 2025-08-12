@@ -2,10 +2,10 @@
   <!-- Header with Refresh Button using PrimeNG Card -->
   <p-card styleClass="header-card">
     <ng-template pTemplate="header">
-      <p-panel [style]="{display: 'flex', 'justify-content': 'space-between', 'align-items': 'center', padding: '1rem', border: 'none', background: 'transparent'}">
-        <p-card [style]="{border: 'none', background: 'transparent', padding: '0'}">
+      <p-panel styleClass="header-flex-padded transparent-panel">
+        <p-card styleClass="transparent-card">
           <ng-template pTemplate="title">
-            <span style="color: var(--primary-color); font-weight: 700; font-size: 1.5rem;">My Tasks</span>
+            <span class="section-title">My Tasks</span>
           </ng-template>
         </p-card>
         <p-button 
@@ -87,7 +87,7 @@
             [severity]="getPrioritySeverity(item.priority)">
           </p-tag>
         </td>
-        <td class="text-center">
+        <td class="p-text-center">
           {{ item.story_points || '-' }}
         </td>
         <td>
@@ -99,19 +99,19 @@
     <!-- Empty State using PrimeNG components -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="text-center">
+        <td colspan="7" class="p-text-center">
           <p-panel>
             <ng-template pTemplate="content">
-              <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-                <i class="pi pi-inbox" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+              <p-panel class="text-center transparent-panel">
+                <i class="pi pi-inbox large-icon"></i>
               </p-panel>
             </ng-template>
             <ng-template pTemplate="title">
               No Tasks Found
             </ng-template>
             <ng-template pTemplate="content">
-              <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-                <span style="color: var(--text-color-secondary);">You don't have any work items assigned to you.</span>
+              <p-panel class="text-center transparent-panel">
+                <span class="coming-soon-text">You don't have any work items assigned to you.</span>
               </p-panel>
             </ng-template>
           </p-panel>

@@ -1,4 +1,10 @@
-/* My Tasks Component - Clean PrimeNG approach */
+/* My Tasks Component - Clean PrimeNG approach 
+   
+   STYLING GUIDELINES:
+   - Use theme variables (var(--surface-*, --text-color-*, etc.))
+   - Prefer utility classes over custom styles where possible
+   - Keep ::ng-deep scoped with :host and specific class names
+*/
 
 .my-tasks-container {
   height: 100%;
@@ -17,9 +23,7 @@
   white-space: nowrap;
 }
 
-.text-center {
-  text-align: center;
-}
+/* Note: Use PrimeFlex p-text-center instead of custom .text-center */
 
 /* Custom styling for header card */
 :host ::ng-deep .header-card.p-card {

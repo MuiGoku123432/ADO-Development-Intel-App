@@ -8,6 +8,7 @@ import { PanelModule } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { FieldsetModule } from 'primeng/fieldset';
 import { ListboxModule } from 'primeng/listbox';
+import { TooltipModule } from 'primeng/tooltip';
 
 // Import simplified components
 import { MyTasksComponent } from './user-tab/my-tasks/my-tasks.component';
@@ -25,6 +26,7 @@ import { MyTasksComponent } from './user-tab/my-tasks/my-tasks.component';
     DividerModule,
     FieldsetModule,
     ListboxModule,
+    TooltipModule,
     MyTasksComponent
   ],
   templateUrl: './mainframe.component.html',

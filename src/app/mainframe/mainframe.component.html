@@ -2,10 +2,10 @@
   <!-- App Header using PrimeNG Panel -->
   <p-panel styleClass="app-header">
     <ng-template pTemplate="header">
-      <p-panel [style]="{display: 'flex', 'justify-content': 'space-between', 'align-items': 'center', width: '100%', border: 'none', background: 'transparent'}">
-        <p-card [style]="{border: 'none', background: 'transparent', padding: '0'}">
+      <p-panel styleClass="header-flex transparent-panel">
+        <p-card styleClass="transparent-card">
           <ng-template pTemplate="title">
-            <span style="color: var(--primary-color); font-size: 1.75rem; font-weight: 700;">ADO Development Intel</span>
+            <span class="app-title">ADO Development Intel</span>
           </ng-template>
         </p-card>
         <p-button 
@@ -23,7 +23,7 @@
     <p-tabView>
       
       <p-tabPanel header="My Tasks" leftIcon="pi pi-user">
-        <p-panel styleClass="tab-content-wrapper" [style]="{border: 'none', background: 'transparent'}">
+        <p-panel styleClass="tab-content-wrapper transparent-panel">
           <app-my-tasks></app-my-tasks>
         </p-panel>
       </p-tabPanel>
@@ -31,8 +31,8 @@
       <p-tabPanel header="Work Items" leftIcon="pi pi-sitemap">
         <p-card>
           <ng-template pTemplate="content">
-            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-              <i class="pi pi-sitemap" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+            <p-panel class="p-text-center transparent-panel">
+              <i class="pi pi-sitemap large-icon"></i>
             </p-panel>
           </ng-template>
           <ng-template pTemplate="title">
@@ -42,8 +42,8 @@
             All work items across projects
           </ng-template>
           <ng-template pTemplate="content">
-            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-              <span style="color: var(--text-color-secondary); font-style: italic;">Coming soon...</span>
+            <p-panel class="p-text-center transparent-panel">
+              <span class="coming-soon-text">Coming soon...</span>
             </p-panel>
           </ng-template>
         </p-card>
@@ -52,8 +52,8 @@
       <p-tabPanel header="Repositories" leftIcon="pi pi-code">
         <p-card>
           <ng-template pTemplate="content">
-            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-              <i class="pi pi-code" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+            <p-panel class="p-text-center transparent-panel">
+              <i class="pi pi-code large-icon"></i>
             </p-panel>
           </ng-template>
           <ng-template pTemplate="title">
@@ -63,8 +63,8 @@
             Repository management and pull requests
           </ng-template>
           <ng-template pTemplate="content">
-            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-              <span style="color: var(--text-color-secondary); font-style: italic;">Coming soon...</span>
+            <p-panel class="p-text-center transparent-panel">
+              <span class="coming-soon-text">Coming soon...</span>
             </p-panel>
           </ng-template>
         </p-card>
@@ -73,8 +73,8 @@
       <p-tabPanel header="Pipelines" leftIcon="pi pi-sync">
         <p-card>
           <ng-template pTemplate="content">
-            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-              <i class="pi pi-sync" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 1rem;"></i>
+            <p-panel class="p-text-center transparent-panel">
+              <i class="pi pi-sync large-icon"></i>
             </p-panel>
           </ng-template>
           <ng-template pTemplate="title">
@@ -84,8 +84,8 @@
             CI/CD pipeline monitoring and management
           </ng-template>
           <ng-template pTemplate="content">
-            <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-              <span style="color: var(--text-color-secondary); font-style: italic;">Coming soon...</span>
+            <p-panel class="p-text-center transparent-panel">
+              <span class="coming-soon-text">Coming soon...</span>
             </p-panel>
           </ng-template>
         </p-card>
@@ -109,13 +109,13 @@
     header="ADO AI Assistant" 
     [(visible)]="chatbotVisible"
     [modal]="true"
-    [style]="{width: '50vw', minHeight: '60vh'}"
+    styleClass="chatbot-dialog"
     [draggable]="false"
     [resizable]="true">
     <p-card>
       <ng-template pTemplate="content">
-        <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-          <i class="pi pi-robot" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+        <p-panel class="p-text-center transparent-panel">
+          <i class="pi pi-robot primary-icon"></i>
         </p-panel>
       </ng-template>
       <ng-template pTemplate="title">
@@ -125,8 +125,8 @@
         Natural language interface for Azure DevOps operations
       </ng-template>
       <ng-template pTemplate="content">
-        <p-panel class="text-center" [style]="{border: 'none', background: 'transparent'}">
-          <span style="color: var(--text-color-secondary); font-style: italic;">Integration with MCP Server coming soon...</span>
+        <p-panel class="p-text-center transparent-panel">
+          <span class="coming-soon-text">Integration with MCP Server coming soon...</span>
         </p-panel>
         <p-divider></p-divider>
         <p-fieldset legend="Planned Features">

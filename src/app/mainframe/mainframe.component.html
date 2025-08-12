@@ -1,73 +1,97 @@
-<div class="app-container">
-  <!-- App Header -->
+<div class="p-d-flex p-flex-column p-h-full">
+  
+  <!-- Application Header -->
   <header class="app-header">
-    <h1 class="app-title">ADO Development Intel</h1>
-    <div class="app-actions">
-      <p-button 
-        icon="pi pi-robot" 
-        [rounded]="true"
-        severity="secondary"
-        (onClick)="showChatbot()"
-        pTooltip="AI Assistant">
-      </p-button>
-    </div>
+    <p-toolbar styleClass="p-mb-0 p-border-bottom-1 surface-border">
+      <ng-template pTemplate="start">
+        <div class="p-d-flex p-ai-center">
+          <span class="app-title p-text-xl p-font-bold p-text-primary">
+            ADO Development Intel
+          </span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="end">
+        <p-button 
+          icon="pi pi-comments" 
+          [text]="true"
+          [rounded]="true"
+          (onClick)="showChatbot()"
+          pTooltip="AI Assistant"
+          severity="secondary">
+        </p-button>
+      </ng-template>
+    </p-toolbar>
   </header>
 
-  <!-- Main Content with Custom Tabs -->
-  <main class="main-content">
-    <app-main-tab [tabs]="mainTabs"></app-main-tab>
-    
-    <!-- Router outlet for tab content -->
-    <div class="tab-content-area">
-      <router-outlet></router-outlet>
-    </div>
+  <!-- Main Application Content -->
+  <main class="app-main p-flex-1 p-overflow-hidden">
+    <p-tabView styleClass="p-h-full p-m-0">
+      
+      <p-tabPanel header="My Tasks" leftIcon="pi pi-user">
+        <app-my-tasks></app-my-tasks>
+      </p-tabPanel>
+      
+      <p-tabPanel header="Coming Soon" leftIcon="pi pi-clock">
+        <div class="p-d-flex p-flex-column p-ai-center p-jc-center p-p-8" style="height: 100%">
+          <i class="pi pi-clock p-text-6xl p-text-color-secondary p-mb-4"></i>
+          <h3 class="p-text-2xl p-font-semibold p-mb-2 p-text-color">More Features Coming Soon</h3>
+          <p class="p-text-color-secondary p-mb-3 p-text-center">Work Items, Repositories, and Pipelines tabs are in development</p>
+          <div class="p-d-flex p-flex-column p-gap-2 p-mt-4">
+            <div class="p-d-flex p-ai-center p-gap-2">
+              <i class="pi pi-sitemap p-text-color-secondary"></i>
+              <span class="p-text-color-secondary">Work Items Management</span>
+            </div>
+            <div class="p-d-flex p-ai-center p-gap-2">
+              <i class="pi pi-code p-text-color-secondary"></i>
+              <span class="p-text-color-secondary">Repository & Pull Requests</span>
+            </div>
+            <div class="p-d-flex p-ai-center p-gap-2">
+              <i class="pi pi-sync p-text-color-secondary"></i>
+              <span class="p-text-color-secondary">CI/CD Pipeline Management</span>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+      
+    </p-tabView>
   </main>
 
-  <!-- Floating Chatbot Button (Alternative to header button) -->
-  <p-button 
-    class="chatbot-float"
-    icon="pi pi-robot" 
-    [rounded]="true"
-    size="large"
-    severity="info"
-    (onClick)="showChatbot()"
-    pTooltip="AI Assistant">
-  </p-button>
-
-  <!-- Chatbot Dialog -->
+  <!-- PrimeNG Dialog - Responsive Structure -->
   <p-dialog 
     header="ADO AI Assistant" 
     [(visible)]="chatbotVisible"
     [modal]="true"
-    [style]="{width: '50vw', minHeight: '60vh'}"
+    [style]="{width: dialogWidth, minHeight: dialogHeight}"
     [draggable]="false"
-    [resizable]="true">
-    <div class="chatbot-placeholder">
-      <div class="text-center p-4">
-        <i class="pi pi-robot" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
-        <h3>ADO AI Assistant</h3>
-        <p>Natural language interface for Azure DevOps operations</p>
-        <p><em>Integration with MCP Server coming soon...</em></p>
-        
-        <div class="mt-4 p-3" style="background: var(--surface-section); border-radius: 8px;">
-          <strong>Planned Features:</strong>
-          <ul class="text-left mt-2">
-            <li>"List my open tasks"</li>
-            <li>"Show repos with pending PRs"</li>
-            <li>"What builds failed today?"</li>
-            <li>"Create new work item"</li>
-          </ul>
-        </div>
-      </div>
+    [resizable]="true"
+    styleClass="chatbot-dialog">
+    
+    <div class="p-text-center p-p-4">
+      <i class="pi pi-comments p-text-6xl p-text-primary p-mb-3"></i>
+      <p class="p-text-color-secondary p-mb-4">Natural language interface for Azure DevOps operations</p>
+      <span class="p-text-color-secondary">Integration with MCP Server coming soon...</span>
     </div>
+    
+    <p-divider></p-divider>
+    
+    <p-fieldset legend="Planned Features" styleClass="p-mt-3">
+      <p-listbox 
+        [options]="plannedFeatures" 
+        optionLabel="label" 
+        [readonly]="true"
+        styleClass="p-w-full">
+      </p-listbox>
+    </p-fieldset>
     
     <ng-template pTemplate="footer">
       <p-button 
         label="Close" 
         icon="pi pi-times" 
         (onClick)="hideChatbot()"
-        severity="secondary">
+        severity="secondary"
+        styleClass="p-button-sm">
       </p-button>
     </ng-template>
   </p-dialog>
+
 </div>

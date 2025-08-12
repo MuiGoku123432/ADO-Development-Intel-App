@@ -1,50 +1,109 @@
-<div class="tab-content">
-  <div class="tab-placeholder">
-    <h2><i class="pi pi-check-square"></i> My Tasks</h2>
-    <p>Personal productivity dashboard for your assigned work items</p>
-    
-    <!-- Summary Cards -->
-    <div class="task-summary">
-      <p-card styleClass="summary-card">
-        <div class="summary-content">
-          <div class="summary-number">8</div>
-          <div class="summary-label">Active Tasks</div>
-          <p-tag severity="info" value="In Progress"></p-tag>
-        </div>
-      </p-card>
-      
-      <p-card styleClass="summary-card">
-        <div class="summary-content">
-          <div class="summary-number">3</div>
-          <div class="summary-label">High Priority</div>
-          <p-tag severity="danger" value="Urgent"></p-tag>
-        </div>
-      </p-card>
-      
-      <p-card styleClass="summary-card">
-        <div class="summary-content">
-          <div class="summary-number">12</div>
-          <div class="summary-label">This Week</div>
-          <p-tag severity="success" value="On Track"></p-tag>
-        </div>
-      </p-card>
-    </div>
-    
-    <div class="features-list">
-      <h4>Planned Features:</h4>
-      <ul>
-        <li><strong>Task List</strong> - DataTable with filters by priority, due date, and status</li>
-        <li><strong>Quick Actions</strong> - Inline edit, attach files, link to repositories</li>
-        <li><strong>Drag & Drop</strong> - Reorder tasks by priority</li>
-        <li><strong>Time Tracking</strong> - Log hours and track progress</li>
-        <li><strong>Smart Filters</strong> - Show only tasks due today, this week, etc.</li>
-      </ul>
-    </div>
-    
-    <div class="action-buttons">
-      <p-button label="Create New Task" icon="pi pi-plus" severity="primary"></p-button>
-      <p-button label="Bulk Update" icon="pi pi-list" severity="secondary"></p-button>
-      <p-button label="Export Tasks" icon="pi pi-download" severity="info"></p-button>
-    </div>
+<div class="p-d-flex p-flex-column" style="height: 100%">
+  
+  <!-- Component Action Bar -->
+  <div class="p-d-flex p-jc-end p-mb-3">
+    <p-button 
+      label="Refresh" 
+      icon="pi pi-refresh"
+      (onClick)="loadMyTasks()"
+      [loading]="loading()"
+      size="small">
+    </p-button>
   </div>
+
+  <!-- Table Content -->
+  <p-table 
+    [value]="workItems()" 
+    [loading]="loading()"
+    [paginator]="true" 
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [sortMode]="'multiple'"
+    [scrollable]="true"
+    scrollHeight="flex"
+    styleClass="p-datatable-sm"
+    [responsive]="true">
+    
+    <!-- ID Column -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id">
+          ID
+          <p-sortIcon field="id"></p-sortIcon>
+        </th>
+        <th pSortableColumn="title">
+          Title
+          <p-sortIcon field="title"></p-sortIcon>
+        </th>
+        <th pSortableColumn="type">
+          Type
+          <p-sortIcon field="type"></p-sortIcon>
+        </th>
+        <th pSortableColumn="state">
+          State
+          <p-sortIcon field="state"></p-sortIcon>
+        </th>
+        <th pSortableColumn="priority">
+          Priority
+          <p-sortIcon field="priority"></p-sortIcon>
+        </th>
+        <th>Story Points</th>
+        <th pSortableColumn="changed_date">
+          Updated
+          <p-sortIcon field="changed_date"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+    
+    <!-- Data Rows -->
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>
+          <span class="title-cell">
+            {{ item.title || 'Untitled' }}
+          </span>
+        </td>
+        <td>
+          <p-tag 
+            [value]="item.type || 'Unknown'"
+            severity="info">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
+            [value]="item.state || 'Unknown'"
+            [severity]="getStateSeverity(item.state)">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
+            [value]="getPriorityLabel(item.priority)"
+            [severity]="getPrioritySeverity(item.priority)">
+          </p-tag>
+        </td>
+        <td class="p-text-center">
+          {{ item.story_points || '-' }}
+        </td>
+        <td>
+          {{ item.changed_date ? (item.changed_date | date:'short') : '-' }}
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Empty State with PrimeNG utilities -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="p-text-center">
+          <div class="p-p-6">
+            <i class="pi pi-inbox p-text-6xl p-text-color-secondary p-mb-4"></i>
+            <h4 class="p-text-xl p-font-semibold p-mb-2 p-text-color">No Tasks Found</h4>
+            <p class="p-text-color-secondary p-m-0">You don't have any work items assigned to you.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  
 </div>

@@ -1,0 +1,61 @@
+/* LoadingSpinnerComponent - PrimeFlex-First Styling
+   
+   DESIGN PRINCIPLES:
+   ✅ Use PrimeFlex utilities for all layout and positioning
+   ✅ Minimal custom CSS - only for overlay behavior and animations
+   ✅ Theme variables for consistency across light/dark modes
+   ✅ Accessibility features (reduced motion, high contrast)
+   ✅ Scoped ::ng-deep usage via :host
+*/
+
+/* Overlay Behavior */
+.loading-overlay {
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  
+  // Dark theme overlay
+  :host-context(.dark) & {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* Animation for skeleton shimmer effect */
+.skeleton-item {
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* PrimeNG Component Customizations */
+:host ::ng-deep {
+  .loading-spinner {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+}
+
+/* Animations */
+@keyframes skeleton-shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Accessibility Support */
+@media (prefers-contrast: high) {
+  .loading-overlay {
+    background: rgba(255, 255, 255, 0.95);
+    
+    :host-context(.dark) & {
+      background: rgba(0, 0, 0, 0.95);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-item {
+    animation: none;
+  }
+  
+  :host ::ng-deep .p-progress-spinner-circle {
+    animation-duration: 3s;
+  }
+}

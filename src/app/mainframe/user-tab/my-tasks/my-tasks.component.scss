@@ -1,89 +1,32 @@
-.task-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 2rem 0;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+/* MyTasksComponent - Work Item Display
+   
+   DESIGN PRINCIPLES:
+   ✅ Use PrimeNG components (p-toolbar, p-table) for all UI elements
+   ✅ Apply PrimeFlex utilities for spacing and layout
+   ✅ Minimal custom CSS - leverage PrimeNG's built-in styles
+   ✅ Use PrimeNG design tokens for consistency
+   ✅ Responsive table with appropriate column sizing
+   ✅ Accessible markup with proper ARIA attributes
+*/
+
+/* Custom table cell styling */
+.title-cell {
+  font-weight: 500;
+  color: var(--text-color);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.summary-card {
-  ::ng-deep .p-card-body {
-    padding: 1.5rem;
+/* PrimeNG Component Customizations - Scoped to component */
+:host ::ng-deep {
+  
+  /* Let PrimeNG table handle its own height with scrollHeight="flex" */
+  .p-datatable.p-datatable-scrollable {
+    /* PrimeNG will handle height automatically with scrollHeight="flex" */
   }
   
-  ::ng-deep .p-card-content {
-    padding: 0;
-  }
 }
 
-.summary-content {
-  text-align: center;
-  
-  .summary-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-  }
-  
-  .summary-label {
-    font-weight: 500;
-    margin-bottom: 0.75rem;
-    color: var(--text-color);
-  }
-}
-
-.features-list {
-  max-width: 600px;
-  margin: 2rem auto;
-  text-align: left;
-  
-  h4 {
-    color: var(--text-color);
-    margin-bottom: 1rem;
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-    
-    li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--surface-border);
-      
-      &:last-child {
-        border-bottom: none;
-      }
-      
-      strong {
-        color: var(--primary-color);
-      }
-    }
-  }
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  .task-summary {
-    grid-template-columns: 1fr;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-    align-items: center;
-    
-    p-button {
-      width: 100%;
-      max-width: 300px;
-    }
-  }
-}
+/* Let PrimeNG handle all layout, spacing, and theming! */

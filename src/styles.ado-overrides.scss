@@ -1,0 +1,172 @@
+/* App-wide PrimeNG look-and-feel overrides
+   Keep this file small and driven by theme tokens. 
+   
+   🎯 STYLE GUIDE - CRITICAL RULES TO PREVENT GLOBAL CONFIG OVERWRITES:
+   
+   ✅ DO:
+   - Use CSS custom properties (var(--property-name)) for all theming
+   - Target specific component classes (.p-component-name) not global selectors
+   - Use theme tokens: --surface-*, --text-color-*, --border-radius, etc.
+   - Keep specificity low - avoid deep nesting
+   - Document any !important usage with clear reasoning
+   
+   ❌ DON'T:
+   - Override core PrimeNG theme classes globally
+   - Use hardcoded colors, sizes, or spacing values
+   - Use overly specific selectors that could conflict with theme
+   - Add !important without clear justification
+   - Create styles that would break theme switching
+   
+   💡 PREFERRED APPROACH:
+   - Use PrimeFlex utilities (p-d-flex, p-text-center, etc.) over custom CSS
+   - Extend existing PrimeNG component styling rather than replacing it
+   - Test any changes with different PrimeNG themes
+   */
+
+:root {
+  /* Adjust global radii and density via theme tokens */
+  --border-radius: 10px;
+}
+
+/* Buttons: firmer weight and consistent radius */
+.p-button {
+  border-radius: var(--border-radius);
+  font-weight: 600;
+}
+
+/* Inputs: align radius with buttons */
+.p-inputtext,
+.p-dropdown,
+.p-multiselect,
+.p-calendar,
+.p-password,
+.p-inputnumber,
+.p-autocomplete {
+  border-radius: var(--border-radius);
+}
+
+/* Cards: slightly tighter default padding */
+.p-card .p-card-body {
+  padding: 1rem 1.25rem;
+}
+
+/* Tags: a touch rounder */
+.p-tag {
+  border-radius: calc(var(--border-radius) - 4px);
+}
+
+/* DataView list items: unify spacing when using flex helpers */
+.p-dataview .p-dataview-content > .p-grid > .p-col-12 {
+  padding: 0;
+}
+
+/* Toolbar: clean, subtle surface look */
+.p-toolbar {
+  background: var(--surface-card);
+  border: none;
+  padding: 0.75rem 1rem;
+}
+
+/* Dialog: comfortable padding, rounded */
+.p-dialog {
+  .p-dialog-header { padding: 0.85rem 1rem; }
+  .p-dialog-content { padding: 1rem; }
+  .p-dialog-footer { padding: 0.85rem 1rem; }
+  border-radius: var(--border-radius);
+}
+
+/* TabView: clearer tabs and spacing */
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  font-weight: 600;
+}
+
+/* Table: row density and header emphasis */
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1rem;
+}
+.p-datatable .p-datatable-thead > tr > th {
+  padding: 0.75rem 1rem;
+  background: var(--surface-100);
+  font-weight: 700;
+}
+.p-datatable .p-datatable-tbody > tr:nth-child(even) > td {
+  background: var(--surface-50, var(--surface-100));
+}
+
+/* Listbox: row padding */
+.p-listbox .p-listbox-list .p-listbox-item {
+  padding: 0.625rem 0.75rem;
+}
+
+/* Inputs & Dropdowns: comfortable padding */
+.p-inputtext { padding: 0.5rem 0.75rem; }
+.p-dropdown .p-dropdown-label { padding: 0.5rem 0.75rem; }
+.p-multiselect .p-multiselect-label { padding: 0.5rem 0.75rem; }
+
+/* ProgressBar: height and radius */
+.p-progressbar { height: 8px; border-radius: var(--border-radius); }
+.p-progressbar .p-progressbar-value { border-radius: var(--border-radius); }
+
+/* Common utility classes to reduce inline styles */
+/* Note: Consider using PrimeFlex utilities: p-d-flex p-jc-between p-ai-center p-w-full */
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-flex-padded {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+.transparent-panel {
+  border: none !important;
+  background: transparent !important;
+}
+
+.transparent-card {
+  border: none !important;
+  background: transparent !important;
+  padding: 0;
+}
+
+.app-title {
+  color: var(--primary-color);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.section-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.large-icon {
+  font-size: 3rem;
+  color: var(--text-color-secondary);
+  margin-bottom: 1rem;
+}
+
+.primary-icon {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.coming-soon-text {
+  color: var(--text-color-secondary);
+  font-style: italic;
+}
+
+.chatbot-dialog {
+  width: 50vw;
+  min-height: 60vh;
+}

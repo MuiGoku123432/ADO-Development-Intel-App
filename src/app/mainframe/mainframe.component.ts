@@ -1,54 +1,73 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { TabViewModule } from 'primeng/tabview';
+import { CardModule } from 'primeng/card';
+import { PanelModule } from 'primeng/panel';
+import { DividerModule } from 'primeng/divider';
+import { FieldsetModule } from 'primeng/fieldset';
+import { ListboxModule } from 'primeng/listbox';
+import { TooltipModule } from 'primeng/tooltip';
+import { ToolbarModule } from 'primeng/toolbar';
 
-// Import custom tab component
-import { MainTabComponent, MainTab } from '../shared/components/main-tab/main-tab.component';
+// Import simplified components
+import { MyTasksComponent } from './user-tab/my-tasks/my-tasks.component';
+import { CHATBOT_FEATURES, APP_CONSTANTS } from '../shared/constants/app.constants';
 
 @Component({
   selector: 'app-mainframe',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     ButtonModule,
     DialogModule,
-    MainTabComponent
+    TabViewModule,
+    CardModule,
+    PanelModule,
+    DividerModule,
+    FieldsetModule,
+    ListboxModule,
+    TooltipModule,
+    ToolbarModule,
+    MyTasksComponent
   ],
   templateUrl: './mainframe.component.html',
   styleUrl: './mainframe.component.scss'
 })
 export class MainframeComponent {
   chatbotVisible = false;
+  
+  // Use centralized constants
+  plannedFeatures = CHATBOT_FEATURES;
 
-  mainTabs: MainTab[] = [
-    {
-      id: 'user',
-      label: 'User',
-      icon: 'pi-user',
-      routePath: '/user'
-    },
-    {
-      id: 'ado',
-      label: 'ADO',
-      icon: 'pi-sitemap',
-      routePath: '/ado'
-    },
-    {
-      id: 'repos',
-      label: 'Repos',
-      icon: 'pi-code',
-      routePath: '/repos'
-    },
-    {
-      id: 'pipelines',
-      label: 'Pipelines',
-      icon: 'pi-sync',
-      routePath: '/pipelines'
+  constructor() {
+    console.log('🚀 Simplified MainframeComponent initialized');
+  }
+
+  // Responsive dialog dimensions using constants
+  get dialogWidth(): string {
+    if (typeof window !== 'undefined') {
+      const { MOBILE, TABLET } = APP_CONSTANTS.BREAKPOINTS;
+      const { RESPONSIVE } = APP_CONSTANTS.DIALOG_SIZES;
+      
+      if (window.innerWidth < MOBILE) return RESPONSIVE.MOBILE.width;
+      if (window.innerWidth < TABLET) return RESPONSIVE.TABLET.width;
+      return RESPONSIVE.DESKTOP.width;
     }
-  ];
+    return APP_CONSTANTS.DIALOG_SIZES.RESPONSIVE.DESKTOP.width;
+  }
+
+  get dialogHeight(): string {
+    if (typeof window !== 'undefined') {
+      const { MOBILE } = APP_CONSTANTS.BREAKPOINTS;
+      const { RESPONSIVE } = APP_CONSTANTS.DIALOG_SIZES;
+      
+      if (window.innerWidth < MOBILE) return RESPONSIVE.MOBILE.height;
+      return RESPONSIVE.DESKTOP.height;
+    }
+    return APP_CONSTANTS.DIALOG_SIZES.RESPONSIVE.DESKTOP.height;
+  }
 
   showChatbot() {
     this.chatbotVisible = true;

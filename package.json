@@ -4,9 +4,17 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:real": "ng serve --configuration production",
+    "start:prod": "ng serve --configuration production",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "mock-api": "mockoon-cli start --data mockoon-data.json",
+    "dev": "concurrently \"npm run mock-api\" \"npm run start\"",
+    "dev:real": "npm run start:prod",
+    "tauri:dev": "tauri dev",
+    "tauri:dev:real": "tauri dev --config '{\"build\":{\"beforeDevCommand\":\"npm run dev:real\"}}'",
+    "tauri:build": "tauri build"
   },
   "private": true,
   "dependencies": {
@@ -20,9 +28,11 @@
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-http": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "primeicons": "^7.0.0",
     "primeng": "^17.18.15",
+    "primeflex": "^3.3.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
@@ -31,8 +41,10 @@
     "@angular-devkit/build-angular": "^17.0.0",
     "@angular/cli": "^17.0.0",
     "@angular/compiler-cli": "^17.0.0",
+    "@mockoon/cli": "^9.3.0",
     "@tauri-apps/cli": "^2",
     "@types/jasmine": "~5.1.0",
+    "concurrently": "^9.2.0",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

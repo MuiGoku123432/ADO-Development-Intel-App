@@ -1,59 +1,53 @@
-// Custom styles for mainframe-specific content
-.tab-content-area {
-  flex: 1;
-  overflow: hidden;
-  background: var(--surface-ground);
+/* MainframeComponent - Application Shell Layout
+   
+   DESIGN PRINCIPLES:
+   ✅ Use PrimeNG layout components (p-toolbar, p-panel, p-tabView)
+   ✅ Apply PrimeFlex utilities for spacing and layout
+   ✅ Minimal custom CSS - let PrimeNG theme handle styling
+   ✅ Use CSS custom properties from PrimeNG theme system
+   ✅ Responsive design with mobile-first approach
+   ✅ Consistent component structure across tabs
+*/
+
+/* Application Header */
+.app-header {
+  flex-shrink: 0;
 }
 
-.features-preview {
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
+/* Application Main Content */
+.app-main {
+  /* All layout handled by PrimeFlex classes */
+}
+
+/* Tab Content Containers */
+.tab-content {
+  /* Consistent content container - styling via PrimeFlex */
+}
+
+/* PrimeNG Component Customizations */
+:host ::ng-deep {
+  
+  /* Application title styling */
+  .app-title {
+    color: var(--primary-color);
+  }
+  
+  /* TabView height and flex styling */
+  .p-tabview.p-h-full {
+    display: flex;
+    flex-direction: column;
     
-    li {
-      padding: 0.5rem 0;
-      color: var(--text-color-secondary);
+    .p-tabview-panels {
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
       
-      &::before {
-        content: "•";
-        color: var(--primary-color);
-        margin-right: 0.75rem;
-        font-weight: bold;
+      .p-tabview-panel {
+        height: 100%;
+        padding: 0;
+        overflow: auto;
       }
     }
   }
-}
-
-.chatbot-placeholder {
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--text-color-secondary);
   
-  ul {
-    list-style: none;
-    padding: 0;
-    
-    li {
-      padding: 0.25rem 0;
-      
-      &:before {
-        content: "•";
-        color: var(--primary-color);
-        margin-right: 0.5rem;
-      }
-    }
-  }
-}
-
-.chatbot-float {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  
-  &:hover {
-    transform: scale(1.05);
-    transition: transform 0.2s ease;
-  }
 }

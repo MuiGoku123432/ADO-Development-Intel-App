@@ -6,9 +6,11 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { PanelModule } from 'primeng/panel';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToolbarModule } from 'primeng/toolbar';
 
 // Services - Simple Tauri ADO Service
 import { TauriAdoService, WorkItemLite } from '../../../services/tauri/tauri-ado.service';
+import { DisplayHelpersService } from '../../../shared/utils/display-helpers.service';
 
 @Component({
   selector: 'app-my-tasks',
@@ -20,13 +22,15 @@ import { TauriAdoService, WorkItemLite } from '../../../services/tauri/tauri-ado
     ButtonModule,
     TagModule,
     PanelModule,
-    SkeletonModule
+    SkeletonModule,
+    ToolbarModule
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.scss'
 })
 export class MyTasksComponent implements OnInit {
   private readonly tauriAdoService = inject(TauriAdoService);
+  private readonly displayHelpers = inject(DisplayHelpersService);
 
   // Simple component state
   workItems = signal<WorkItemLite[]>([]);
@@ -57,32 +61,16 @@ export class MyTasksComponent implements OnInit {
     });
   }
 
-  // Utility methods for display
+  // Utility methods for display - now using shared service
   getPriorityLabel(priority?: number): string {
-    switch (priority) {
-      case 1: return 'High';
-      case 2: return 'Medium';
-      case 3: return 'Low';
-      case 4: return 'Critical';
-      default: return 'None';
-    }
+    return this.displayHelpers.getPriorityLabel(priority);
   }
 
   getPrioritySeverity(priority?: number): 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast' {
-    switch (priority) {
-      case 1: case 4: return 'danger';
-      case 2: return 'warning';
-      case 3: return 'info';
-      default: return 'secondary';
-    }
+    return this.displayHelpers.getPrioritySeverity(priority);
   }
 
   getStateSeverity(state?: string): 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast' {
-    switch (state?.toLowerCase()) {
-      case 'done': case 'closed': return 'success';
-      case 'active': case 'in progress': return 'warning';
-      case 'new': return 'info';
-      default: return 'secondary';
-    }
+    return this.displayHelpers.getStateSeverity(state);
   }
 }

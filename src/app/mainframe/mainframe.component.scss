@@ -1,58 +1,53 @@
-/* MainFrame Component - Clean PrimeNG approach 
+/* MainframeComponent - Application Shell Layout
    
-   IMPORTANT: Only use ::ng-deep with :host selector and specific class targeting
-   Example: :host ::ng-deep .app-header.p-panel { } - Good ✅
-   Example: ::ng-deep .p-panel { } - BAD ❌ (affects all panels globally)
+   DESIGN PRINCIPLES:
+   ✅ Use PrimeNG layout components (p-toolbar, p-panel, p-tabView)
+   ✅ Apply PrimeFlex utilities for spacing and layout
+   ✅ Minimal custom CSS - let PrimeNG theme handle styling
+   ✅ Use CSS custom properties from PrimeNG theme system
+   ✅ Responsive design with mobile-first approach
+   ✅ Consistent component structure across tabs
 */
 
-.app-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--surface-ground);
+/* Application Header */
+.app-header {
+  flex-shrink: 0;
 }
 
-/* Main content area */
-.main-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+/* Application Main Content */
+.app-main {
+  /* All layout handled by PrimeFlex classes */
 }
 
-/* Tab content wrapper */
-.tab-content-wrapper {
-  height: 100%;
-  overflow: hidden;
-  background: var(--surface-ground);
-  padding: 1rem;
+/* Tab Content Containers */
+.tab-content {
+  /* Consistent content container - styling via PrimeFlex */
 }
 
-/* Floating chatbot button positioning */
-.chatbot-float {
-  position: fixed !important;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 1000;
-}
-
-/* Custom styling for app header panel */
-:host ::ng-deep .app-header.p-panel {
-  border: none;
-  border-bottom: 1px solid var(--surface-border);
-  border-radius: 0;
-}
-
-:host ::ng-deep .app-header .p-panel-header {
-  padding: 1.5rem 2rem;
-  background: var(--surface-card);
-  border: none;
-}
-
-/* Header card styling */
-:host ::ng-deep .header-card.p-card {
-  border-radius: 0;
-  border: none;
-  margin-bottom: 1rem;
+/* PrimeNG Component Customizations */
+:host ::ng-deep {
+  
+  /* Application title styling */
+  .app-title {
+    color: var(--primary-color);
+  }
+  
+  /* TabView height and flex styling */
+  .p-tabview.p-h-full {
+    display: flex;
+    flex-direction: column;
+    
+    .p-tabview-panels {
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
+      
+      .p-tabview-panel {
+        height: 100%;
+        padding: 0;
+        overflow: auto;
+      }
+    }
+  }
+  
 }

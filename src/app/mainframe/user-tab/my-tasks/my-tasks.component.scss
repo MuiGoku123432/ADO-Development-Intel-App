@@ -1,19 +1,15 @@
-/* My Tasks Component - Clean PrimeNG approach 
+/* MyTasksComponent - Work Item Display
    
-   STYLING GUIDELINES:
-   - Use theme variables (var(--surface-*, --text-color-*, etc.))
-   - Prefer utility classes over custom styles where possible
-   - Keep ::ng-deep scoped with :host and specific class names
+   DESIGN PRINCIPLES:
+   ✅ Use PrimeNG components (p-toolbar, p-table) for all UI elements
+   ✅ Apply PrimeFlex utilities for spacing and layout
+   ✅ Minimal custom CSS - leverage PrimeNG's built-in styles
+   ✅ Use PrimeNG design tokens for consistency
+   ✅ Responsive table with appropriate column sizing
+   ✅ Accessible markup with proper ARIA attributes
 */
 
-.my-tasks-container {
-  height: 100%;
-  padding: 1rem;
-  background: var(--surface-ground);
-  overflow: auto;
-}
-
-/* Utility classes */
+/* Custom table cell styling */
 .title-cell {
   font-weight: 500;
   color: var(--text-color);
@@ -23,18 +19,14 @@
   white-space: nowrap;
 }
 
-/* Note: Use PrimeFlex p-text-center instead of custom .text-center */
-
-/* Custom styling for header card */
-:host ::ng-deep .header-card.p-card {
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius);
+/* PrimeNG Component Customizations - Scoped to component */
+:host ::ng-deep {
+  
+  /* Let PrimeNG table handle its own height with scrollHeight="flex" */
+  .p-datatable.p-datatable-scrollable {
+    /* PrimeNG will handle height automatically with scrollHeight="flex" */
+  }
+  
 }
 
-:host ::ng-deep .header-card .p-card-header {
-  padding: 0;
-  border-bottom: none;
-}
-
-/* Let PrimeNG theme handle all the component styling! */
+/* Let PrimeNG handle all layout, spacing, and theming! */

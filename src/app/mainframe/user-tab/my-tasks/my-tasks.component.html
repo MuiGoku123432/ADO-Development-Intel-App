@@ -1,24 +1,17 @@
-<p-panel styleClass="my-tasks-container">
-  <!-- Header with Refresh Button using PrimeNG Card -->
-  <p-card styleClass="header-card">
-    <ng-template pTemplate="header">
-      <p-panel styleClass="header-flex-padded transparent-panel">
-        <p-card styleClass="transparent-card">
-          <ng-template pTemplate="title">
-            <span class="section-title">My Tasks</span>
-          </ng-template>
-        </p-card>
-        <p-button 
-          label="Refresh" 
-          icon="pi pi-refresh"
-          (onClick)="loadMyTasks()"
-          [loading]="loading()">
-        </p-button>
-      </p-panel>
-    </ng-template>
-  </p-card>
+<div class="p-d-flex p-flex-column" style="height: 100%">
+  
+  <!-- Component Action Bar -->
+  <div class="p-d-flex p-jc-end p-mb-3">
+    <p-button 
+      label="Refresh" 
+      icon="pi pi-refresh"
+      (onClick)="loadMyTasks()"
+      [loading]="loading()"
+      size="small">
+    </p-button>
+  </div>
 
-  <!-- Simple PrimeNG Table -->
+  <!-- Table Content -->
   <p-table 
     [value]="workItems()" 
     [loading]="loading()"
@@ -26,8 +19,11 @@
     [rows]="10"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [tableStyle]="{'min-width': '50rem'}"
-    [sortMode]="'multiple'">
+    [sortMode]="'multiple'"
+    [scrollable]="true"
+    scrollHeight="flex"
+    styleClass="p-datatable-sm"
+    [responsive]="true">
     
     <!-- ID Column -->
     <ng-template pTemplate="header">
@@ -96,27 +92,18 @@
       </tr>
     </ng-template>
 
-    <!-- Empty State using PrimeNG components -->
+    <!-- Empty State with PrimeNG utilities -->
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="7" class="p-text-center">
-          <p-panel>
-            <ng-template pTemplate="content">
-              <p-panel class="text-center transparent-panel">
-                <i class="pi pi-inbox large-icon"></i>
-              </p-panel>
-            </ng-template>
-            <ng-template pTemplate="title">
-              No Tasks Found
-            </ng-template>
-            <ng-template pTemplate="content">
-              <p-panel class="text-center transparent-panel">
-                <span class="coming-soon-text">You don't have any work items assigned to you.</span>
-              </p-panel>
-            </ng-template>
-          </p-panel>
+          <div class="p-p-6">
+            <i class="pi pi-inbox p-text-6xl p-text-color-secondary p-mb-4"></i>
+            <h4 class="p-text-xl p-font-semibold p-mb-2 p-text-color">No Tasks Found</h4>
+            <p class="p-text-color-secondary p-m-0">You don't have any work items assigned to you.</p>
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
-</p-panel>
+  
+</div>

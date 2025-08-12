@@ -1,202 +1,47 @@
-/* Loading Spinner Component - Accessibility-First PrimeNG Styling
+/* LoadingSpinnerComponent - PrimeFlex-First Styling
    
-   GUIDELINES:
-   - Uses theme variables for consistency across light/dark modes
-   - Includes accessibility features (reduced motion, high contrast)
-   - ::ng-deep usage is scoped to component via :host
+   DESIGN PRINCIPLES:
+   ✅ Use PrimeFlex utilities for all layout and positioning
+   ✅ Minimal custom CSS - only for overlay behavior and animations
+   ✅ Theme variables for consistency across light/dark modes
+   ✅ Accessibility features (reduced motion, high contrast)
+   ✅ Scoped ::ng-deep usage via :host
 */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+
+/* Overlay Behavior */
+.loading-overlay {
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
   
-  &.loading-overlay-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(2px);
-    
-    // Dark theme overlay
-    :host-context(.dark) & {
-      background: rgba(0, 0, 0, 0.8);
-    }
+  // Dark theme overlay
+  :host-context(.dark) & {
+    background: rgba(0, 0, 0, 0.85);
   }
 }
 
-// Spinner Content
-.spinner-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+/* Animation for skeleton shimmer effect */
+.skeleton-item {
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
-// Loading Messages
-.loading-message {
-  text-align: center;
-  color: var(--text-color);
-  font-weight: 500;
-  
-  &.loading-message-small {
-    font-size: 0.875rem;
-  }
-  
-  &.loading-message-medium {
-    font-size: 1rem;
-  }
-  
-  &.loading-message-large {
-    font-size: 1.125rem;
-  }
-  
-  &.loading-message-skeleton {
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
-    color: var(--text-color-secondary);
-  }
-}
-
-// Skeleton Content
-.skeleton-content {
-  width: 100%;
-  max-width: 100%;
-}
-
-.skeleton-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  
-  .skeleton-item {
-    // Additional skeleton item styling can go here
-    animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  }
-}
-
-// Skeleton Table Layout
-.skeleton-table {
-  width: 100%;
-  border-spacing: 0;
-  border-collapse: separate;
-}
-
-.skeleton-table-row {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-  
-  &:first-child {
-    // Header row styling
-    .skeleton-table-cell {
-      height: 24px;
-    }
-  }
-}
-
-.skeleton-table-cell {
-  flex: 1;
-  min-height: 20px;
-  
-  // Column-specific widths for realistic table appearance
-  &:first-child {
-    flex: 0 0 60px; // ID column
-  }
-  
-  &:nth-child(2) {
-    flex: 2; // Title column - larger
-  }
-  
-  &:nth-child(3) {
-    flex: 0 0 100px; // Type column
-  }
-  
-  &:nth-child(4) {
-    flex: 0 0 120px; // Status column
-  }
-  
-  &:nth-child(5) {
-    flex: 0 0 80px; // Priority column
-  }
-  
-  &:last-child {
-    flex: 0 0 140px; // Actions column
-  }
-}
-
-// Custom PrimeNG Spinner Styling
+/* PrimeNG Component Customizations */
 :host ::ng-deep {
-  .loading-spinner-small {
-    .p-progress-spinner-circle {
-      stroke-width: 6;
-    }
-  }
-  
-  .loading-spinner-medium {
-    .p-progress-spinner-circle {
-      stroke-width: 4;
-    }
-  }
-  
-  .loading-spinner-large {
-    .p-progress-spinner-circle {
-      stroke-width: 3;
-    }
-  }
-  
-  .loading-spinner-overlay {
+  .loading-spinner {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   }
 }
 
-// Backdrop
-.loading-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-}
-
-// Animations
+/* Animations */
 @keyframes skeleton-shimmer {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 1;
-  }
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .loading-container {
-    padding: 0.75rem;
-  }
-  
-  .skeleton-table-row {
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .loading-message {
-    font-size: 0.875rem !important;
-  }
-}
-
-// High contrast mode support
+/* Accessibility Support */
 @media (prefers-contrast: high) {
-  .loading-container.loading-overlay-container {
+  .loading-overlay {
     background: rgba(255, 255, 255, 0.95);
     
     :host-context(.dark) & {
@@ -205,13 +50,12 @@
   }
 }
 
-// Reduced motion support
 @media (prefers-reduced-motion: reduce) {
   .skeleton-item {
     animation: none;
   }
   
   :host ::ng-deep .p-progress-spinner-circle {
-    animation-duration: 3s; // Slower animation for reduced motion
+    animation-duration: 3s;
   }
 }

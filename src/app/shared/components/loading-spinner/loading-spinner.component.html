@@ -1,26 +1,28 @@
 <!-- Loading Container -->
-<div *ngIf="show" class="loading-container" [class.loading-overlay-container]="overlay">
+<div *ngIf="show" 
+     class="p-d-flex p-flex-column p-ai-center p-jc-center p-p-4" 
+     [class]="overlay ? 'loading-overlay p-fixed p-top-0 p-left-0 p-w-full p-h-full' : ''">
   
   <!-- Progress Spinner Mode -->
-  <div *ngIf="type === 'spinner'" class="spinner-content">
+  <div *ngIf="type === 'spinner'" class="p-d-flex p-flex-column p-ai-center p-gap-3">
     <p-progressSpinner 
       styleClass="loading-spinner"
       [style]="{width: spinnerSize, height: spinnerSize}"
       strokeWidth="4">
     </p-progressSpinner>
     
-    <div *ngIf="message" class="loading-message">
+    <div *ngIf="message" class="p-text-center p-text-color p-font-medium">
       {{ message }}
     </div>
   </div>
 
   <!-- Skeleton Mode -->
-  <div *ngIf="type === 'skeleton'" class="skeleton-content">
-    <div *ngIf="message" class="loading-message">
+  <div *ngIf="type === 'skeleton'" class="p-w-full">
+    <div *ngIf="message" class="p-text-center p-text-color-secondary p-font-medium p-mb-3">
       {{ message }}
     </div>
     
-    <div class="skeleton-items">
+    <div class="p-d-flex p-flex-column p-gap-3">
       <p-skeleton 
         *ngFor="let item of defaultSkeletons; trackBy: trackByIndex"
         [shape]="item.shape"
@@ -33,6 +35,4 @@
     </div>
   </div>
 
-  <!-- Overlay Backdrop -->
-  <div *ngIf="overlay" class="loading-backdrop"></div>
 </div>

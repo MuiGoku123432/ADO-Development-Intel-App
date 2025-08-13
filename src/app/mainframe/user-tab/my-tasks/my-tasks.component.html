@@ -1,3 +1,6 @@
+<!-- Toast notifications -->
+<p-toast position="top-right" />
+
 <div class="p-d-flex p-flex-column" style="height: 100%">
   
   <!-- Tool Row -->
@@ -92,6 +95,9 @@
           Updated
           <p-sortIcon field="changed_date"></p-sortIcon>
         </th>
+        <th style="width: 140px;">
+          Actions
+        </th>
       </tr>
     </ng-template>
     
@@ -134,13 +140,42 @@
         <td>
           {{ item.changed_date ? (item.changed_date | date:'short') : '-' }}
         </td>
+        <td class="actions-cell">
+          <div class="action-buttons">
+            <p-button 
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              pTooltip="Edit work item"
+              (onClick)="onEditWorkItem(item)"
+              severity="secondary">
+            </p-button>
+            <p-button 
+              icon="pi pi-paperclip"
+              [text]="true"
+              size="small"
+              pTooltip="Attach files"
+              (onClick)="onAttachFiles(item)"
+              severity="secondary">
+            </p-button>
+            <p-button 
+              [icon]="getTransitionIcon(item)"
+              [text]="true"
+              size="small"
+              [pTooltip]="getTransitionTooltip(item)"
+              (onClick)="onStateTransition(item)"
+              [disabled]="!isTransitionAvailable(item)"
+              severity="secondary">
+            </p-button>
+          </div>
+        </td>
       </tr>
     </ng-template>
 
     <!-- Empty State with PrimeNG utilities -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="8" class="p-text-center">
+        <td colspan="9" class="p-text-center">
           <div class="p-p-6">
             <i class="pi pi-inbox p-text-6xl p-text-color-secondary p-mb-4"></i>
             <h4 class="p-text-xl p-font-semibold p-mb-2 p-text-color">No Tasks Found</h4>

@@ -1,0 +1,167 @@
+.transition-fields-dialog {
+  max-width: 600px;
+  min-width: 450px;
+  
+  .dialog-header {
+    margin-bottom: 1.5rem;
+    
+    h3 {
+      margin: 0 0 0.75rem 0;
+      color: var(--text-color);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .transition-info {
+      margin: 0 0 0.5rem 0;
+      color: var(--text-color-secondary);
+      font-size: 0.95rem;
+      
+      .state-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        
+        &.from-state {
+          background-color: var(--surface-100);
+          color: var(--text-color);
+          border: 1px solid var(--surface-border);
+        }
+        
+        &.to-state {
+          background-color: var(--primary-50);
+          color: var(--primary-color);
+          border: 1px solid var(--primary-200);
+        }
+      }
+    }
+    
+    .fields-info {
+      margin: 0;
+      color: var(--text-color-secondary);
+      font-size: 0.9rem;
+    }
+  }
+  
+  .fields-form {
+    .form-fields {
+      .field-group {
+        margin-bottom: 1.25rem;
+        
+        .field-label {
+          display: block;
+          margin-bottom: 0.5rem;
+          color: var(--text-color);
+          font-weight: 500;
+          font-size: 0.95rem;
+          
+          .required-indicator {
+            color: var(--red-500);
+            margin-left: 0.25rem;
+          }
+        }
+        
+        .field-input {
+          margin-bottom: 0.25rem;
+          
+          // Ensure all form controls have full width
+          ::ng-deep {
+            .p-inputtext,
+            .p-inputnumber,
+            .p-dropdown,
+            .p-calendar {
+              width: 100% !important;
+            }
+            
+            .p-inputnumber-input {
+              width: 100% !important;
+            }
+            
+            .p-calendar input {
+              width: 100% !important;
+            }
+          }
+        }
+        
+        .field-error {
+          margin-top: 0.25rem;
+          
+          ::ng-deep .p-message {
+            margin: 0;
+            padding: 0.5rem;
+          }
+        }
+        
+        .field-hint {
+          display: block;
+          margin-top: 0.25rem;
+          color: var(--text-color-secondary);
+          font-size: 0.85rem;
+          font-style: italic;
+        }
+      }
+    }
+    
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--surface-border);
+      
+      ::ng-deep {
+        .p-button {
+          padding: 0.75rem 1.5rem;
+          
+          &[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .transition-fields-dialog {
+    min-width: 90vw;
+    max-width: 95vw;
+    
+    .dialog-header {
+      .transition-info {
+        .state-badge {
+          display: block;
+          margin: 0.25rem 0;
+          text-align: center;
+        }
+      }
+    }
+    
+    .fields-form .dialog-actions {
+      flex-direction: column-reverse;
+      
+      ::ng-deep .p-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// Field validation styling
+::ng-deep {
+  .p-invalid {
+    border-color: var(--red-500) !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
+  }
+  
+  .p-invalid:focus {
+    border-color: var(--red-500) !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.3) !important;
+  }
+}

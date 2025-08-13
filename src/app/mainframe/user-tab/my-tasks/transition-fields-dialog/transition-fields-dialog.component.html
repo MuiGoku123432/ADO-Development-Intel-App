@@ -1,0 +1,124 @@
+<div class="transition-fields-dialog">
+  <div class="dialog-header">
+    <h3>Complete Transition</h3>
+    <p class="transition-info">
+      Moving work item <strong>{{ fieldsRequiredEvent.work_item_id }}</strong> 
+      from <span class="state-badge from-state">{{ fieldsRequiredEvent.current_state }}</span>
+      to <span class="state-badge to-state">{{ fieldsRequiredEvent.target_state }}</span>
+    </p>
+    <p class="fields-info">
+      Please provide the following required information:
+    </p>
+  </div>
+
+  <form [formGroup]="fieldsForm" (ngSubmit)="onSubmit()" class="fields-form">
+    <div class="form-fields">
+      
+      <!-- Dynamic field rendering based on field type -->
+      <div *ngFor="let prompt of fieldsRequiredEvent.prompts" class="field-group">
+        
+        <!-- Field Label -->
+        <label [for]="prompt.ref_name" class="field-label">
+          {{ prompt.label }}
+          <span *ngIf="isFieldRequired(prompt)" class="required-indicator">*</span>
+        </label>
+        
+        <!-- String/Text Input -->
+        <div *ngIf="getFieldType(prompt) === 'string'" class="field-input">
+          <input 
+            pInputText 
+            [id]="prompt.ref_name"
+            [formControlName]="prompt.ref_name"
+            [placeholder]="prompt.placeholder || 'Enter ' + prompt.label"
+            [class.p-invalid]="getFieldError(prompt)"
+            class="w-full" />
+        </div>
+        
+        <!-- Number Input -->
+        <div *ngIf="getFieldType(prompt) === 'number'" class="field-input">
+          <p-inputNumber 
+            [id]="prompt.ref_name"
+            [formControlName]="prompt.ref_name"
+            [placeholder]="prompt.placeholder || 'Enter ' + prompt.label"
+            [class.p-invalid]="getFieldError(prompt)"
+            styleClass="w-full"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            [step]="1">
+          </p-inputNumber>
+        </div>
+        
+        <!-- Picklist/Dropdown -->
+        <div *ngIf="getFieldType(prompt) === 'picklist'" class="field-input">
+          <p-dropdown 
+            [id]="prompt.ref_name"
+            [formControlName]="prompt.ref_name"
+            [options]="getDropdownOptions(prompt)"
+            [placeholder]="prompt.placeholder || 'Select ' + prompt.label"
+            [class.p-invalid]="getFieldError(prompt)"
+            styleClass="w-full"
+            optionLabel="label"
+            optionValue="value">
+          </p-dropdown>
+        </div>
+        
+        <!-- Identity/User Field -->
+        <div *ngIf="getFieldType(prompt) === 'identity'" class="field-input">
+          <input 
+            pInputText 
+            [id]="prompt.ref_name"
+            [formControlName]="prompt.ref_name"
+            [placeholder]="prompt.placeholder || 'Enter user name or leave blank for current user'"
+            [class.p-invalid]="getFieldError(prompt)"
+            class="w-full" />
+          <small class="field-hint">Leave blank to assign to current user</small>
+        </div>
+        
+        <!-- DateTime Field -->
+        <div *ngIf="getFieldType(prompt) === 'datetime'" class="field-input">
+          <p-calendar 
+            [id]="prompt.ref_name"
+            [formControlName]="prompt.ref_name"
+            [placeholder]="prompt.placeholder || 'Select date'"
+            [class.p-invalid]="getFieldError(prompt)"
+            styleClass="w-full"
+            [showIcon]="true"
+            [showTime]="true"
+            dateFormat="mm/dd/yy"
+            [iconDisplay]="'input'">
+          </p-calendar>
+        </div>
+        
+        <!-- Field Error Message -->
+        <div *ngIf="getFieldError(prompt)" class="field-error">
+          <p-message severity="error" [text]="getFieldError(prompt)!" styleClass="w-full"></p-message>
+        </div>
+        
+        <!-- Field Help Text -->
+        <small *ngIf="prompt.placeholder && getFieldType(prompt) !== 'identity'" class="field-hint">
+          {{ prompt.placeholder }}
+        </small>
+        
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="dialog-actions">
+      <p-button 
+        label="Cancel" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [text]="true"
+        (onClick)="onCancel()">
+      </p-button>
+      
+      <p-button 
+        label="Complete Transition" 
+        icon="pi pi-check" 
+        type="submit"
+        [disabled]="fieldsForm.invalid"
+        [loading]="false">
+      </p-button>
+    </div>
+  </form>
+</div>

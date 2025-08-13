@@ -54,6 +54,43 @@
   white-space: nowrap;
 }
 
+/* Actions column styling */
+.actions-cell {
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  
+  p-button {
+    ::ng-deep .p-button {
+      padding: 0.25rem;
+      min-width: auto;
+      width: 2rem;
+      height: 2rem;
+      
+      .p-button-icon {
+        font-size: 0.875rem;
+      }
+      
+      &:hover {
+        background-color: var(--surface-100);
+        color: var(--primary-color);
+      }
+      
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
 /* PrimeNG Component Customizations - Scoped to component */
 /* Responsive Tool Row Design */
 @media (max-width: 768px) {
@@ -98,6 +135,27 @@
   .tool-row {
     gap: 0.75rem;
     padding: 0.5rem 0;
+  }
+  
+  /* Stack action buttons vertically on very small screens */
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.125rem;
+    
+    p-button {
+      ::ng-deep .p-button {
+        width: 1.75rem;
+        height: 1.75rem;
+        
+        .p-button-icon {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+  
+  .actions-cell {
+    min-width: 60px;
   }
 }
 

@@ -1,9 +1,14 @@
 use std::env;
+use std::collections::HashMap;
 use tauri::State;
 use serde::{Deserialize, Serialize};
 use parking_lot::RwLock;
+use tokio::sync::Mutex;
 
 use azure_devops_rust_api::{Credential, wit};
+
+mod work_item_transitions;
+use work_item_transitions::{PendingTransition, TransitionPreview};
 use azure_devops_rust_api::wit::models::{Wiql, WorkItemBatchGetRequest};
 
 // ADO Credentials structure - kept for compatibility with existing .env setup
@@ -20,6 +25,7 @@ struct AuthState {
     cred: RwLock<Option<Credential>>,
     org: RwLock<Option<String>>,
     project: RwLock<Option<String>>,
+    pending_transitions: Mutex<HashMap<String, PendingTransition>>,
 }
 
 // Lightweight work item structure for the frontend
@@ -255,6 +261,139 @@ async fn get_my_work_items(
     Ok(all_work_items)
 }
 
+/// Begin a dynamic work item state transition
+#[tauri::command]
+async fn begin_transition(
+    app: tauri::AppHandle,
+    state: State<'_, AuthState>,
+    work_item_id: i32,
+) -> Result<work_item_transitions::TransitionResponse, String> {
+    println!("📞 [COMMAND] begin_transition invoked for work item: {}", work_item_id);
+    
+    // Get credentials and organization info
+    let (credential, org, project) = {
+        let cred_guard = state.cred.read();
+        let org_guard = state.org.read();
+        let proj_guard = state.project.read();
+        
+        if let (Some(cred), Some(org)) = (cred_guard.clone(), org_guard.clone()) {
+            let project = proj_guard.clone().unwrap_or_else(|| "DefaultProject".to_string());
+            (cred, org, project)
+        } else {
+            // Fallback to environment
+            dotenv::dotenv().ok();
+            let org = env::var("ADO_ORGANIZATION")
+                .map_err(|_| "ADO_ORGANIZATION not found".to_string())?;
+            let pat = env::var("ADO_PAT")
+                .map_err(|_| "ADO_PAT not found".to_string())?;
+            let project = env::var("ADO_PROJECTS")
+                .or_else(|_| env::var("ADO_PROJECT"))
+                .unwrap_or_else(|_| "DefaultProject".to_string())
+                .split(',')
+                .next()
+                .unwrap_or("DefaultProject")
+                .trim()
+                .to_string();
+            
+            (Credential::from_pat(pat), org, project)
+        }
+    };
+
+    work_item_transitions::begin_transition(
+        app,
+        &state.pending_transitions,
+        &credential,
+        &org,
+        &project,
+        work_item_id,
+    )
+    .await
+}
+
+/// Complete a pending work item state transition with user-provided field values
+#[tauri::command]
+async fn finish_transition(
+    state: State<'_, AuthState>,
+    correlation_id: String,
+    values: HashMap<String, serde_json::Value>,
+) -> Result<serde_json::Value, String> {
+    println!("📞 [COMMAND] finish_transition invoked for correlation_id: {}", correlation_id);
+    
+    // Get credentials and organization info
+    let (credential, org) = {
+        let cred_guard = state.cred.read();
+        let org_guard = state.org.read();
+        
+        if let (Some(cred), Some(org)) = (cred_guard.clone(), org_guard.clone()) {
+            (cred, org)
+        } else {
+            // Fallback to environment
+            dotenv::dotenv().ok();
+            let org = env::var("ADO_ORGANIZATION")
+                .map_err(|_| "ADO_ORGANIZATION not found".to_string())?;
+            let pat = env::var("ADO_PAT")
+                .map_err(|_| "ADO_PAT not found".to_string())?;
+            
+            (Credential::from_pat(pat), org)
+        }
+    };
+
+    work_item_transitions::finish_transition(
+        &state.pending_transitions,
+        &credential,
+        &org,
+        correlation_id,
+        values,
+    )
+    .await
+}
+
+/// Preview the next state transition for a work item without executing it
+#[tauri::command]
+async fn preview_transition(
+    state: State<'_, AuthState>,
+    work_item_id: i32,
+) -> Result<TransitionPreview, String> {
+    println!("📞 [COMMAND] preview_transition invoked for work item: {}", work_item_id);
+    
+    // Get credentials and organization info
+    let (credential, org, project) = {
+        let cred_guard = state.cred.read();
+        let org_guard = state.org.read();
+        let proj_guard = state.project.read();
+        
+        if let (Some(cred), Some(org)) = (cred_guard.clone(), org_guard.clone()) {
+            let project = proj_guard.clone().unwrap_or_else(|| "DefaultProject".to_string());
+            (cred, org, project)
+        } else {
+            // Fallback to environment
+            dotenv::dotenv().ok();
+            let org = env::var("ADO_ORGANIZATION")
+                .map_err(|_| "ADO_ORGANIZATION not found".to_string())?;
+            let pat = env::var("ADO_PAT")
+                .map_err(|_| "ADO_PAT not found".to_string())?;
+            let project = env::var("ADO_PROJECTS")
+                .or_else(|_| env::var("ADO_PROJECT"))
+                .unwrap_or_else(|_| "DefaultProject".to_string())
+                .split(',')
+                .next()
+                .unwrap_or("DefaultProject")
+                .trim()
+                .to_string();
+            
+            (Credential::from_pat(pat), org, project)
+        }
+    };
+
+    work_item_transitions::preview_transition(
+        &credential,
+        &org,
+        &project,
+        work_item_id,
+    )
+    .await
+}
+
 /// Get available projects list from environment configuration
 #[tauri::command]
 fn get_available_projects() -> Result<Vec<String>, String> {
@@ -394,13 +533,16 @@ pub fn run() {
             set_pat,
             get_my_work_items,
             get_available_projects,
+            begin_transition,
+            finish_transition,
+            preview_transition,
             get_ado_credentials, 
             validate_ado_config, 
             validate_ado_token_native
         ])
         .setup(|_app| {
             println!("⚡ Tauri application setup completed successfully");
-            println!("🎯 Available commands: greet, set_pat, get_my_work_items, get_available_projects, get_ado_credentials, validate_ado_config, validate_ado_token_native");
+            println!("🎯 Available commands: greet, set_pat, get_my_work_items, get_available_projects, begin_transition, finish_transition, get_ado_credentials, validate_ado_config, validate_ado_token_native");
             Ok(())
         })
         .run(tauri::generate_context!());

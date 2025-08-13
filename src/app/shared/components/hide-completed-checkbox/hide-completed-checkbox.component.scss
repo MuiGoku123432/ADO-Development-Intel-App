@@ -1,0 +1,71 @@
+.hide-completed-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+}
+
+.hide-completed-checkbox {
+  ::ng-deep .p-checkbox {
+    .p-checkbox-box {
+      border-radius: var(--border-radius);
+      transition: all 0.2s ease;
+      
+      &.p-focus {
+        box-shadow: var(--focus-ring);
+      }
+    }
+  }
+}
+
+.hide-completed-label {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  user-select: none;
+  
+  &:hover {
+    color: var(--primary-color);
+  }
+}
+
+.hide-completed-icon {
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  color: var(--text-color-secondary);
+  transition: color 0.2s ease;
+}
+
+.hide-completed-label:hover .hide-completed-icon {
+  color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hide-completed-label {
+    font-size: 0.9rem;
+  }
+  
+  .hide-completed-icon {
+    font-size: 0.85rem;
+    margin-right: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hide-completed-wrapper {
+    gap: 0.5rem;
+  }
+  
+  .hide-completed-label {
+    font-size: 0.85rem;
+  }
+  
+  .hide-completed-icon {
+    margin-right: 0.3rem;
+  }
+}

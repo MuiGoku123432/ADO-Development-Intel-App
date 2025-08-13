@@ -1,0 +1,12 @@
+<div class="hide-completed-wrapper">
+  <p-checkbox 
+    [(ngModel)]="isHideCompleted"
+    [binary]="true"
+    inputId="hideCompletedTasks"
+    styleClass="hide-completed-checkbox"
+  ></p-checkbox>
+  <label for="hideCompletedTasks" class="hide-completed-label">
+    <i class="pi pi-eye-slash hide-completed-icon"></i>
+    Hide closed and resolved tasks
+  </label>
+</div>

@@ -26,6 +26,15 @@ html, body {
   background: var(--surface-ground);
 }
 
+/* Global PrimeNG Dropdown Z-Index Fix */
+.p-dropdown-panel {
+  z-index: 1050 !important;
+}
+
+.p-overlay {
+  z-index: 1050 !important;
+}
+
 /* Utility classes */
 /* Note: Use PrimeFlex p-text-center instead of custom .text-center */
 

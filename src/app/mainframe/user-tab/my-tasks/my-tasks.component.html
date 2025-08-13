@@ -1,19 +1,46 @@
 <div class="p-d-flex p-flex-column" style="height: 100%">
   
-  <!-- Component Action Bar -->
-  <div class="p-d-flex p-jc-end p-mb-3">
-    <p-button 
-      label="Refresh" 
-      icon="pi pi-refresh"
-      (onClick)="loadMyTasks()"
-      [loading]="loading()"
-      size="small">
-    </p-button>
+  <!-- Tool Row -->
+  <div class="tool-row">
+    <!-- Search Input (flexible) -->
+    <div class="search-section">
+      <app-search-bar 
+        placeholder="Search tasks by ID or title..."
+        (searchChanged)="onSearchChanged($event)">
+      </app-search-bar>
+    </div>
+    
+    <!-- State Filter Dropdown -->
+    <div class="state-filter-section">
+      <app-state-filter-dropdown
+        [workItems]="workItems()"
+        (stateFilterChanged)="onStateFilterChanged($event)">
+      </app-state-filter-dropdown>
+    </div>
+    
+    <!-- Hide Completed Checkbox -->
+    <div class="checkbox-section">
+      <app-hide-completed-checkbox
+        [defaultChecked]="true"
+        (hideCompletedChanged)="onHideCompletedChanged($event)">
+      </app-hide-completed-checkbox>
+    </div>
+    
+    <!-- Refresh Button -->
+    <div class="action-section">
+      <p-button 
+        label="Refresh" 
+        icon="pi pi-refresh"
+        (onClick)="loadMyTasks()"
+        [loading]="loading()"
+        size="small">
+      </p-button>
+    </div>
   </div>
 
   <!-- Table Content -->
   <p-table 
-    [value]="workItems()" 
+    [value]="filteredWorkItems()" 
     [loading]="loading()"
     [paginator]="true" 
     [rows]="10"

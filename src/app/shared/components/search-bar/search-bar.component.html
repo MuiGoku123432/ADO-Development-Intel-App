@@ -1,0 +1,19 @@
+<div class="search-input-wrapper">
+  <i class="pi pi-search search-icon"></i>
+  <input 
+    pInputText 
+    [formControl]="searchControl"
+    [placeholder]="placeholder"
+    class="search-input"
+    autocomplete="off"
+  />
+  <button 
+    *ngIf="hasValue"
+    pButton 
+    type="button"
+    class="p-button-text p-button-sm clear-button"
+    icon="pi pi-times"
+    (click)="clearSearch()"
+    [attr.aria-label]="'Clear search'"
+  ></button>
+</div>

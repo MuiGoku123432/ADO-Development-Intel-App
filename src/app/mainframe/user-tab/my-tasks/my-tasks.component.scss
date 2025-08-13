@@ -9,6 +9,36 @@
    ✅ Accessible markup with proper ARIA attributes
 */
 
+/* Tool Row Styling */
+.tool-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.search-section {
+  flex: 1;
+  max-width: 400px;
+  min-width: 200px;
+}
+
+.state-filter-section {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.checkbox-section {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.action-section {
+  flex-shrink: 0;
+}
+
 /* Custom table cell styling */
 .title-cell {
   font-weight: 500;
@@ -20,11 +50,62 @@
 }
 
 /* PrimeNG Component Customizations - Scoped to component */
+/* Responsive Tool Row Design */
+@media (max-width: 768px) {
+  .tool-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 0.75rem 0;
+  }
+  
+  .search-section {
+    max-width: 100%;
+    order: 1;
+  }
+  
+  .state-filter-section {
+    order: 2;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .checkbox-section {
+    order: 3;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .action-section {
+    order: 4;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .tool-row {
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+}
+
 :host ::ng-deep {
   
   /* Let PrimeNG table handle its own height with scrollHeight="flex" */
   .p-datatable.p-datatable-scrollable {
     /* PrimeNG will handle height automatically with scrollHeight="flex" */
+  }
+
+  /* Ensure dropdown panels appear above table content */
+  .p-dropdown-panel {
+    z-index: 1050 !important;
+  }
+
+  /* Prevent table from interfering with dropdowns */
+  .p-datatable {
+    position: relative;
+    z-index: 1;
   }
   
 }

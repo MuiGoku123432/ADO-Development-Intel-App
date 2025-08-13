@@ -25,6 +25,11 @@
   min-width: 200px;
 }
 
+.project-filter-section {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .state-filter-section {
   flex-shrink: 0;
   white-space: nowrap;
@@ -64,20 +69,26 @@
     order: 1;
   }
   
-  .state-filter-section {
+  .project-filter-section {
     order: 2;
     display: flex;
     justify-content: center;
   }
   
-  .checkbox-section {
+  .state-filter-section {
     order: 3;
     display: flex;
     justify-content: center;
   }
   
-  .action-section {
+  .checkbox-section {
     order: 4;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .action-section {
+    order: 5;
     display: flex;
     justify-content: center;
   }

@@ -10,6 +10,14 @@
       </app-search-bar>
     </div>
     
+    <!-- Project Filter Dropdown -->
+    <div class="project-filter-section">
+      <app-project-filter-dropdown
+        [workItems]="workItems()"
+        (projectFilterChanged)="onProjectFilterChanged($event)">
+      </app-project-filter-dropdown>
+    </div>
+    
     <!-- State Filter Dropdown -->
     <div class="state-filter-section">
       <app-state-filter-dropdown
@@ -67,6 +75,10 @@
           Type
           <p-sortIcon field="type"></p-sortIcon>
         </th>
+        <th pSortableColumn="project_name">
+          Project
+          <p-sortIcon field="project_name"></p-sortIcon>
+        </th>
         <th pSortableColumn="state">
           State
           <p-sortIcon field="state"></p-sortIcon>
@@ -100,6 +112,12 @@
         </td>
         <td>
           <p-tag 
+            [value]="item.project_name || 'Unknown'"
+            [severity]="getProjectSeverity(item.project_name)">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag 
             [value]="item.state || 'Unknown'"
             [severity]="getStateSeverity(item.state)">
           </p-tag>
@@ -122,7 +140,7 @@
     <!-- Empty State with PrimeNG utilities -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="p-text-center">
+        <td colspan="8" class="p-text-center">
           <div class="p-p-6">
             <i class="pi pi-inbox p-text-6xl p-text-color-secondary p-mb-4"></i>
             <h4 class="p-text-xl p-font-semibold p-mb-2 p-text-color">No Tasks Found</h4>

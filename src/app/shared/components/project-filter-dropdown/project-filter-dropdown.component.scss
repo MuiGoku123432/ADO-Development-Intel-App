@@ -1,0 +1,113 @@
+.project-filter-wrapper {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  position: relative;
+  z-index: 10; /* Ensure dropdown trigger is above other elements */
+}
+
+.project-filter-dropdown {
+  ::ng-deep .p-dropdown {
+    min-width: 180px;
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: var(--primary-color);
+    }
+
+    &:focus-within {
+      outline: 0 none;
+      outline-offset: 0;
+      box-shadow: var(--focus-ring);
+      border-color: var(--primary-color);
+    }
+
+    .p-dropdown-label {
+      padding: 0.5rem 0.75rem;
+      color: var(--text-color);
+      font-size: 0.95rem;
+      
+      &.p-placeholder {
+        color: var(--text-color-secondary);
+        font-style: italic;
+      }
+    }
+
+    .p-dropdown-trigger {
+      width: 2.5rem;
+      color: var(--text-color-secondary);
+      transition: color 0.2s ease;
+    }
+
+    &:hover .p-dropdown-trigger {
+      color: var(--primary-color);
+    }
+
+    .p-dropdown-clear-icon {
+      color: var(--text-color-secondary);
+      transition: color 0.2s ease;
+      
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  ::ng-deep .p-dropdown-panel {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    border: 1px solid var(--surface-border);
+    z-index: 1050 !important; /* Higher than PrimeNG table z-index */
+
+    .p-dropdown-items-wrapper {
+      .p-dropdown-items {
+        .p-dropdown-item {
+          padding: 0.75rem 1rem;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: var(--surface-100);
+            color: var(--primary-color);
+          }
+          
+          &.p-highlight {
+            background: var(--primary-color);
+            color: var(--primary-color-text);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .project-filter-dropdown {
+    ::ng-deep .p-dropdown {
+      min-width: 160px;
+      
+      .p-dropdown-label {
+        padding: 0.45rem 0.65rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .project-filter-dropdown {
+    ::ng-deep .p-dropdown {
+      min-width: 140px;
+      
+      .p-dropdown-label {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+      }
+      
+      .p-dropdown-trigger {
+        width: 2rem;
+      }
+    }
+  }
+}

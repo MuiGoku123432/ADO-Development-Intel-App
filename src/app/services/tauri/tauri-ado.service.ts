@@ -17,6 +17,7 @@ export interface WorkItemLite {
   story_points?: number;
   area_path?: string;
   iteration_path?: string;
+  project_name: string;
 }
 
 @Injectable({
@@ -70,6 +71,19 @@ export class TauriAdoService {
         items.forEach(item => {
           console.log(`  • ${item.id}: ${item.title} (${item.state})`);
         });
+      })
+    );
+  }
+
+  /**
+   * Get available projects from configuration
+   */
+  getAvailableProjects(): Observable<string[]> {
+    console.log('📋 [TAURI-ADO] Fetching available projects from configuration');
+    
+    return from(invoke<string[]>('get_available_projects')).pipe(
+      tap(projects => {
+        console.log(`✅ [TAURI-ADO] Retrieved ${projects.length} available projects:`, projects);
       })
     );
   }

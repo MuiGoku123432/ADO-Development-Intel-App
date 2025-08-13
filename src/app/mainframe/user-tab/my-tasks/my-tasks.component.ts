@@ -14,6 +14,7 @@ import { DisplayHelpersService } from '../../../shared/utils/display-helpers.ser
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { HideCompletedCheckboxComponent } from '../../../shared/components/hide-completed-checkbox/hide-completed-checkbox.component';
 import { StateFilterDropdownComponent } from '../../../shared/components/state-filter-dropdown/state-filter-dropdown.component';
+import { ProjectFilterDropdownComponent } from '../../../shared/components/project-filter-dropdown/project-filter-dropdown.component';
 
 @Component({
   selector: 'app-my-tasks',
@@ -29,7 +30,8 @@ import { StateFilterDropdownComponent } from '../../../shared/components/state-f
     ToolbarModule,
     SearchBarComponent,
     HideCompletedCheckboxComponent,
-    StateFilterDropdownComponent
+    StateFilterDropdownComponent,
+    ProjectFilterDropdownComponent
   ],
   templateUrl: './my-tasks.component.html',
   styleUrl: './my-tasks.component.scss'
@@ -46,6 +48,7 @@ export class MyTasksComponent implements OnInit {
   searchTerm = signal<string>('');
   hideCompleted = signal<boolean>(true);
   selectedState = signal<string | null>(null);
+  selectedProject = signal<string | null>(null);
 
   // Computed filtered work items
   filteredWorkItems = computed(() => {
@@ -53,8 +56,9 @@ export class MyTasksComponent implements OnInit {
     const search = this.searchTerm().toLowerCase().trim();
     const hideCompletedTasks = this.hideCompleted();
     const stateFilter = this.selectedState();
+    const projectFilter = this.selectedProject();
     
-    console.log('🔄 MyTasks: Filtering items - stateFilter:', stateFilter, 'hideCompleted:', hideCompletedTasks, 'search:', search);
+    console.log('🔄 MyTasks: Filtering items - stateFilter:', stateFilter, 'projectFilter:', projectFilter, 'hideCompleted:', hideCompletedTasks, 'search:', search);
     
     let filtered = items;
     
@@ -66,6 +70,13 @@ export class MyTasksComponent implements OnInit {
         return idMatch || titleMatch;
       });
       console.log('🔍 MyTasks: After search filter:', filtered.length, 'items');
+    }
+    
+    // Apply project filter
+    if (projectFilter) {
+      const beforeCount = filtered.length;
+      filtered = filtered.filter(item => item.project_name === projectFilter);
+      console.log('📂 MyTasks: Project filter applied - before:', beforeCount, 'after:', filtered.length, 'project:', projectFilter);
     }
     
     // Apply state filter (takes precedence over hide completed)
@@ -134,6 +145,25 @@ export class MyTasksComponent implements OnInit {
     return this.displayHelpers.getStateSeverity(state);
   }
 
+  getProjectSeverity(project?: string): 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast' {
+    if (!project) return 'contrast';
+    
+    // Create consistent color mapping for projects using hash
+    const colors: ('success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast')[] = [
+      'success', 'info', 'warning', 'secondary', 'danger', 'contrast'
+    ];
+    
+    // Simple hash function to consistently assign colors to projects
+    let hash = 0;
+    for (let i = 0; i < project.length; i++) {
+      hash = ((hash << 5) - hash) + project.charCodeAt(i);
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  }
+
   // Search and filter event handlers
   onSearchChanged(searchTerm: string): void {
     this.searchTerm.set(searchTerm);
@@ -164,5 +194,23 @@ export class MyTasksComponent implements OnInit {
     } else {
       console.log('🔄 MyTasks: Showing all states (subject to other filters)');
     }
+  }
+
+  onProjectFilterChanged(selectedProject: string | null): void {
+    this.selectedProject.set(selectedProject);
+    console.log('📂 MyTasks: Project filter changed:', selectedProject);
+    console.log('📈 MyTasks: Total work items:', this.workItems().length);
+    console.log('📉 MyTasks: Filtered items count:', this.filteredWorkItems().length);
+    
+    if (selectedProject) {
+      console.log('🔍 MyTasks: Filtering by specific project:', selectedProject);
+    } else {
+      console.log('🔄 MyTasks: Showing all projects (subject to other filters)');
+    }
+    
+    // Debug: Show what projects are present in the data
+    const projects = this.workItems().map(item => item.project_name).filter(Boolean);
+    const uniqueProjects = [...new Set(projects)];
+    console.log('🏷️ MyTasks: Available work item projects:', uniqueProjects);
   }
 }

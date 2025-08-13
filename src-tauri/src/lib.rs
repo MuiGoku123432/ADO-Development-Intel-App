@@ -37,6 +37,7 @@ struct WorkItemLite {
     story_points: Option<f64>,
     area_path: Option<String>,
     iteration_path: Option<String>,
+    project_name: String,
 }
 
 // User profile response structure for frontend compatibility (keeping existing interface)
@@ -64,31 +65,28 @@ fn set_pat(state: State<AuthState>, pat: String, organization: String, project: 
     Ok(())
 }
 
-/// Get all work items assigned to the current user in {org}/{project}
+/// Get all work items assigned to the current user across multiple projects
 #[tauri::command]
 async fn get_my_work_items(
     state: State<'_, AuthState>,
     organization: Option<String>,
-    project: Option<String>,
+    _project: Option<String>,
 ) -> Result<Vec<WorkItemLite>, String> {
-    println!("📞 [COMMAND] get_my_work_items invoked");
+    println!("📞 [COMMAND] get_my_work_items invoked (multi-project support)");
     let start_time = std::time::Instant::now();
 
     // Get credentials from state or fall back to environment
-    let (cred, org, proj) = {
+    let (cred, org) = {
         let cred_guard = state.cred.read();
         let org_guard = state.org.read();
-        let proj_guard = state.project.read();
         
         if let (Some(cred), Some(org)) = (cred_guard.clone(), org_guard.clone()) {
             println!("🔐 [ADO] Using stored credentials");
-            let project = project.or_else(|| proj_guard.clone()).unwrap_or_else(|| "DefaultProject".to_string());
-            (cred, org, project)
+            (cred, org)
         } else {
             println!("🔐 [ADO] No stored credentials, trying environment variables");
             drop(cred_guard);
             drop(org_guard);
-            drop(proj_guard);
             
             // Load from environment if not in state
             dotenv::dotenv().ok();
@@ -96,139 +94,189 @@ async fn get_my_work_items(
                 .ok_or_else(|| "No organization provided and ADO_ORGANIZATION not found".to_string())?;
             let pat = env::var("ADO_PAT")
                 .map_err(|_| "ADO_PAT environment variable not found".to_string())?;
-            let proj = project.or_else(|| env::var("ADO_PROJECT").ok())
-                .unwrap_or_else(|| "DefaultProject".to_string());
             
             let cred = Credential::from_pat(pat);
-            (cred, org, proj)
+            (cred, org)
         }
     };
 
+    // Get projects list from environment (comma-separated)
+    dotenv::dotenv().ok();
+    let projects_str = env::var("ADO_PROJECTS")
+        .or_else(|_| env::var("ADO_PROJECT").map(|p| p)) // Fallback to single project
+        .unwrap_or_else(|_| "DefaultProject".to_string());
+    
+    let projects: Vec<String> = projects_str
+        .split(',')
+        .map(|p| p.trim().to_string())
+        .filter(|p| !p.is_empty())
+        .collect();
+
     println!("🚀 [ADO] Building Work Item Tracking client");
     println!("  ├─ Organization: {}", org);
-    println!("  └─ Project: {}", proj);
+    println!("  └─ Projects: {:?}", projects);
 
     // Build Work Item Tracking client
     let wit_client = wit::ClientBuilder::new(cred).build();
 
-    // 1) Query IDs with WIQL — "Assigned To = @Me"
-    let wiql = Wiql {
-        query: Some(
-            "SELECT [System.Id] \
-             FROM WorkItems \
-             WHERE [System.AssignedTo] = @Me \
-               AND [System.State] <> 'Removed' \
-             ORDER BY [System.ChangedDate] DESC"
-                .into(),
-        ),
-    };
+    let mut all_work_items = Vec::new();
+    let projects_count = projects.len();
 
-    println!("📡 [ADO] Executing WIQL query for work items assigned to @Me");
-    
-    // POST _apis/wit/wiql - Fix parameter order based on API signature
-    let wiql_resp = wit_client
-        .wiql_client()
-        .query_by_wiql(&org, wiql, &proj, "")  // org, body, project, team
-        .await
-        .map_err(|e| {
-            let elapsed = start_time.elapsed();
-            println!("❌ [ADO] WIQL query failed ({:?}): {:?}", elapsed, e);
-            format!("WIQL query failed: {}", e)
-        })?;
+    // Process each project
+    for project_name in projects {
+        println!("📡 [ADO] Processing project: {}", project_name);
+        
+        // 1) Query IDs with WIQL — "Assigned To = @Me"
+        let wiql = Wiql {
+            query: Some(
+                "SELECT [System.Id] \
+                 FROM WorkItems \
+                 WHERE [System.AssignedTo] = @Me \
+                   AND [System.State] <> 'Removed' \
+                 ORDER BY [System.ChangedDate] DESC"
+                    .into(),
+            ),
+        };
 
-    // Parse the query result → IDs - the response should already be the parsed result
-    let wiql_result = wiql_resp;
+        println!("📡 [ADO] Executing WIQL query for work items assigned to @Me in project: {}", project_name);
+        
+        // POST _apis/wit/wiql - Fix parameter order based on API signature
+        let wiql_resp = match wit_client
+            .wiql_client()
+            .query_by_wiql(&org, wiql, &project_name, "")  // org, body, project, team
+            .await
+        {
+            Ok(resp) => resp,
+            Err(e) => {
+                println!("⚠️ [ADO] WIQL query failed for project {}: {:?}", project_name, e);
+                continue; // Skip this project and continue with others
+            }
+        };
 
-    let ids: Vec<i32> = wiql_result
-        .work_items
-        .into_iter()
-        .filter_map(|r| r.id)
-        .collect();
+        // Parse the query result → IDs
+        let wiql_result = wiql_resp;
 
-    println!("📊 [ADO] Found {} work item IDs from WIQL query", ids.len());
+        let ids: Vec<i32> = wiql_result
+            .work_items
+            .into_iter()
+            .filter_map(|r| r.id)
+            .collect();
 
-    if ids.is_empty() {
-        let elapsed = start_time.elapsed();
-        println!("✅ [ADO] No work items found ({:?})", elapsed);
-        return Ok(vec![]);
+        println!("📊 [ADO] Found {} work item IDs from WIQL query in project: {}", ids.len(), project_name);
+
+        if ids.is_empty() {
+            println!("ℹ️ [ADO] No work items found in project: {}", project_name);
+            continue;
+        }
+
+        // 2) Batch fetch the fields we want for those IDs (max 200 per request)
+        let wanted_fields = vec![
+            "System.Id".into(),
+            "System.Title".into(),
+            "System.State".into(),
+            "System.WorkItemType".into(),
+            "System.AssignedTo".into(),
+            "System.Description".into(),
+            "System.CreatedDate".into(),
+            "System.ChangedDate".into(),
+            "System.AreaPath".into(),
+            "System.IterationPath".into(),
+            "Microsoft.VSTS.Common.Priority".into(),
+            "Microsoft.VSTS.Scheduling.StoryPoints".into(),
+        ];
+
+        println!("📡 [ADO] Batch fetching work item details for {} items in project: {}", ids.len(), project_name);
+
+        let batch = WorkItemBatchGetRequest {
+            fields: wanted_fields,
+            ids,
+            ..Default::default()
+        };
+
+        let items = match wit_client
+            .work_items_client()
+            .get_work_items_batch(&org, batch, &project_name)  // org, body, project
+            .await
+        {
+            Ok(items) => items,
+            Err(e) => {
+                println!("⚠️ [ADO] Batch request failed for project {}: {:?}", project_name, e);
+                continue; // Skip this project and continue with others
+            }
+        };
+
+        let project_work_items: Vec<WorkItemLite> = items
+            .value
+            .into_iter()
+            .map(|wi| {
+                let f = wi.fields;
+                
+                // Helper function to extract string field
+                let get_string_field = |field_name: &str| -> Option<String> {
+                    f.get(field_name).and_then(|v| v.as_str()).map(|s| s.to_string())
+                };
+                
+                // Helper function to extract i32 field
+                let get_i32_field = |field_name: &str| -> Option<i32> {
+                    f.get(field_name).and_then(|v| v.as_i64()).map(|i| i as i32)
+                };
+                
+                // Helper function to extract f64 field
+                let get_f64_field = |field_name: &str| -> Option<f64> {
+                    f.get(field_name).and_then(|v| v.as_f64())
+                };
+
+                WorkItemLite {
+                    id: wi.id,
+                    title: get_string_field("System.Title"),
+                    state: get_string_field("System.State"),
+                    r#type: get_string_field("System.WorkItemType"),
+                    assigned_to: get_string_field("System.AssignedTo"),
+                    description: get_string_field("System.Description"),
+                    created_date: get_string_field("System.CreatedDate"),
+                    changed_date: get_string_field("System.ChangedDate"),
+                    priority: get_i32_field("Microsoft.VSTS.Common.Priority"),
+                    story_points: get_f64_field("Microsoft.VSTS.Scheduling.StoryPoints"),
+                    area_path: get_string_field("System.AreaPath"),
+                    iteration_path: get_string_field("System.IterationPath"),
+                    project_name: project_name.clone(),
+                }
+            })
+            .collect();
+
+        println!("✅ [ADO] Retrieved {} work items from project: {}", project_work_items.len(), project_name);
+        all_work_items.extend(project_work_items);
     }
 
-    // 2) Batch fetch the fields we want for those IDs (max 200 per request)
-    let wanted_fields = vec![
-        "System.Id".into(),
-        "System.Title".into(),
-        "System.State".into(),
-        "System.WorkItemType".into(),
-        "System.AssignedTo".into(),
-        "System.Description".into(),
-        "System.CreatedDate".into(),
-        "System.ChangedDate".into(),
-        "System.AreaPath".into(),
-        "System.IterationPath".into(),
-        "Microsoft.VSTS.Common.Priority".into(),
-        "Microsoft.VSTS.Scheduling.StoryPoints".into(),
-    ];
+    let elapsed = start_time.elapsed();
+    println!("✅ [ADO] Successfully retrieved {} work items across {} projects ({:?})", 
+             all_work_items.len(), projects_count, elapsed);
 
-    println!("📡 [ADO] Batch fetching work item details for {} items", ids.len());
+    Ok(all_work_items)
+}
 
-    let batch = WorkItemBatchGetRequest {
-        fields: wanted_fields,
-        ids,
-        ..Default::default()
-    };
-
-    let items = wit_client
-        .work_items_client()
-        .get_work_items_batch(&org, batch, &proj)  // org, body, project
-        .await
-        .map_err(|e| {
-            let elapsed = start_time.elapsed();
-            println!("❌ [ADO] Batch request failed ({:?}): {:?}", elapsed, e);
-            format!("Batch request failed: {}", e)
-        })?;
-
-    let result: Vec<WorkItemLite> = items
-        .value
-        .into_iter()
-        .map(|wi| {
-            let f = wi.fields;
-            
-            // Helper function to extract string field
-            let get_string_field = |field_name: &str| -> Option<String> {
-                f.get(field_name).and_then(|v| v.as_str()).map(|s| s.to_string())
-            };
-            
-            // Helper function to extract i32 field
-            let get_i32_field = |field_name: &str| -> Option<i32> {
-                f.get(field_name).and_then(|v| v.as_i64()).map(|i| i as i32)
-            };
-            
-            // Helper function to extract f64 field
-            let get_f64_field = |field_name: &str| -> Option<f64> {
-                f.get(field_name).and_then(|v| v.as_f64())
-            };
-
-            WorkItemLite {
-                id: wi.id,
-                title: get_string_field("System.Title"),
-                state: get_string_field("System.State"),
-                r#type: get_string_field("System.WorkItemType"),
-                assigned_to: get_string_field("System.AssignedTo"),
-                description: get_string_field("System.Description"),
-                created_date: get_string_field("System.CreatedDate"),
-                changed_date: get_string_field("System.ChangedDate"),
-                priority: get_i32_field("Microsoft.VSTS.Common.Priority"),
-                story_points: get_f64_field("Microsoft.VSTS.Scheduling.StoryPoints"),
-                area_path: get_string_field("System.AreaPath"),
-                iteration_path: get_string_field("System.IterationPath"),
-            }
-        })
+/// Get available projects list from environment configuration
+#[tauri::command]
+fn get_available_projects() -> Result<Vec<String>, String> {
+    println!("📞 [COMMAND] get_available_projects invoked");
+    
+    // Load .env file if it exists
+    dotenv::dotenv().ok();
+    
+    // Get projects list from environment (comma-separated)
+    let projects_str = env::var("ADO_PROJECTS")
+        .or_else(|_| env::var("ADO_PROJECT").map(|p| p)) // Fallback to single project
+        .unwrap_or_else(|_| "DefaultProject".to_string());
+    
+    let projects: Vec<String> = projects_str
+        .split(',')
+        .map(|p| p.trim().to_string())
+        .filter(|p| !p.is_empty())
         .collect();
 
-    let elapsed = start_time.elapsed();
-    println!("✅ [ADO] Successfully retrieved {} work items ({:?})", result.len(), elapsed);
-
-    Ok(result)
+    println!("✅ [COMMAND] Found {} configured projects: {:?}", projects.len(), projects);
+    
+    Ok(projects)
 }
 
 // Keep existing commands for compatibility with the current frontend
@@ -345,13 +393,14 @@ pub fn run() {
             greet, 
             set_pat,
             get_my_work_items,
+            get_available_projects,
             get_ado_credentials, 
             validate_ado_config, 
             validate_ado_token_native
         ])
         .setup(|_app| {
             println!("⚡ Tauri application setup completed successfully");
-            println!("🎯 Available commands: greet, set_pat, get_my_work_items, get_ado_credentials, validate_ado_config, validate_ado_token_native");
+            println!("🎯 Available commands: greet, set_pat, get_my_work_items, get_available_projects, get_ado_credentials, validate_ado_config, validate_ado_token_native");
             Ok(())
         })
         .run(tauri::generate_context!());
